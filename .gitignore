@@ -1,0 +1,34 @@
+# Dependencies
+node_modules/
+
+# Build output
+.astro/
+dist/
+
+# Generated search index
+public/pagefind/
+
+# Caches
+.cache/
+.eslintcache
+*.tsbuildinfo
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Local environment files
+.env
+.env.*
+!.env.example
+
+# IDE / Editor
+.idea/
+.vscode/
+
+# OS files
+.DS_Store
+

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1140 250" role="img" aria-label="Monkey banana Proof logo">
+  <g id="object-0">
+    <text class="logo-text-left" style="fill: rgb(51, 51, 51); font-family: var(--font-cascadia-code), 'Cascadia Code', monospace; font-size: 128px; font-weight: 600; white-space: pre;" x="20" y="175">Monkey</text>
+    <text class="logo-sphere" style="fill: rgb(246, 199, 63); font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Twemoji Mozilla', sans-serif; font-size: 128px; font-variant-emoji: emoji; white-space: pre; transform-origin: center;" x="500" y="175">&#x1F34C;&#xFE0F;</text>
+    <text class="logo-text-right" style="fill: rgb(51, 51, 51); font-family: var(--font-cascadia-code), 'Cascadia Code', monospace; font-size: 122px; font-weight: 600; white-space: pre;" x="650" y="175">Proof</text>
+  </g>
+
+</svg>
