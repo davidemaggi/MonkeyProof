@@ -72,7 +72,7 @@ If you're not a full-time Kubernetes administrator, you don't need to understand
 
 <figure>
   <img
-    src="../../src/assets/images/devops_path.png"
+    src="/images/devops_path.png"
     alt="A DevOps engineer sitting comfortably, sipping coffee, and reading a blackboard with a flowchart: Cloud → IaC → CI/CD → Docker → Kubernetes. The mood is relaxed and curious, as if the engineer is planning their next move, not climbing a mountain."
   />
   <figcaption class="text-center">
