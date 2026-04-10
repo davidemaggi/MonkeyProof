@@ -42,6 +42,50 @@ applyTo: "src/data/blog/**/*.{md,mdx}"
 - Use `ogImage` only as a fallback metadata value when a dedicated main image is not available.
 - Code snippets in the article should be supported by the frontmatter metadata. For example, if the article includes a code example of a specific technology, consider adding a relevant tag and mentioning that technology in the description.
 
+
+example of code snippet with language specified:
+
+```typescript file=decorators.ts
+// Class decorator — before (experimental)
+@sealed
+class OldClass { ... }
+
+// Standard decorator — TS 5.x // [!code highlight]
+function logged<T extends new (...args: unknown[]) => unknown>(
+  target: T,
+  _ctx: ClassDecoratorContext,
+) {
+  return class extends target {
+    constructor(...args: unknown[]) {
+      super(...args);
+      console.log(`[LOG] Instance of ${target.name} created`);
+    }
+  };
+}
+
+@logged
+class UserService {
+  constructor(private db: Database) {}
+}
+```
+
+- Image inside articles will be upladed under the 'public/images' directory. When suggesting images, please provide a descriptive filename and alt text that reflects the content of the image and its relevance to the article. For example, if the article discusses Kubernetes architecture, an appropriate image might be named `kubernetes-architecture-diagram.png` with alt text like "Diagram illustrating Kubernetes architecture with nodes, pods, and services."
+
+example of image suggestion:
+
+```md
+<figure>
+  <img
+    src="/images/devops_path.png"
+    alt="A DevOps engineer sitting comfortably, sipping coffee, and reading a blackboard with a flowchart: Cloud → IaC → CI/CD → Docker → Kubernetes. The mood is relaxed and curious, as if the engineer is planning their next move, not climbing a mountain."
+  />
+  <figcaption class="text-center">
+    DevOps learning path: sometimes the smartest move is to sit, read, and plan before you start running!
+  </figcaption>
+</figure>
+```
+
+
 ## Style Anchors
 
 - The voice should feel like MonkeyProof: architecture, backend engineering, distributed systems, experiments, avoidable mistakes, and technically accurate chaos.
