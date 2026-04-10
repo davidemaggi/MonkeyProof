@@ -5,12 +5,8 @@ pubDatetime: 2026-04-06T10:00:00Z
 tags:
   - welcome
   - placeholder
-featured: true
+featured: false
 draft: false
-mainImage: ../../assets/images/comic.webp
-mainImageAlt: MonkeyProof placeholder illustration with warm comic-style tones
-mainImageCaption: The first visual placeholder for MonkeyProof.
-mainImageCredit: MonkeyProof internal artwork
 ogImage: /monkeyproof-og.png # fallback used only if mainImage is not provided
 
 ---
