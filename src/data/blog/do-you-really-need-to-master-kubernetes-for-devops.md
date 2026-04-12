@@ -2,7 +2,7 @@
 title: "Do You Really Need to Master Kubernetes for DevOps?"
 description: "A practical guide to prioritizing DevOps skills: why cloud, CI/CD, and infrastructure as code matter more than deep Kubernetes expertise for most roles."
 pubDatetime: 2026-04-09T22:36:00Z
-featured: true
+featured: false
 draft;: false
 tags:
   - devops

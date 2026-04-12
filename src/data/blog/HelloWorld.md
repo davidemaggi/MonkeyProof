@@ -5,7 +5,7 @@ pubDatetime: 2026-04-06T10:00:00Z
 tags:
   - welcome
   - placeholder
-featured: false
+featured: true
 draft: false
 ogImage: /monkeyproof-og.png # fallback used only if mainImage is not provided
 
