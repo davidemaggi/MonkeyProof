@@ -15,6 +15,8 @@ MonkeyProof is a personal blog built with Astro, focused on software architectur
 - [Quick Start](#quick-start)
 - [Local Setup](#local-setup)
 - [Available Scripts](#available-scripts)
+- [Automated Release and Docker Publish (GHCR)](#automated-release-and-docker-publish-ghcr)
+- [Conventional Commits for Versioning](#conventional-commits-for-versioning)
 - [Site Configuration](#site-configuration)
 - [Content and Frontmatter](#content-and-frontmatter)
 - [Main and OG Images](#main-and-og-images)
@@ -55,6 +57,7 @@ Main paths:
 - `src/config.ts`: main site configuration
 - `src/content.config.ts`: collection frontmatter schema
 - `.github/workflows/deploy-pages.yml`: GitHub Pages deploy pipeline
+- `.github/workflows/docker-build-push.yml`: semantic-release + Docker publish to GHCR
 
 ## Prerequisites
 
@@ -116,12 +119,48 @@ From `package.json`:
 - `npm run dev`: starts Astro dev server
 - `npm run build`: `astro check` + build + Pagefind index + copy to `public/pagefind`
 - `npm run preview`: serves the build output
+- `npm run release`: runs `semantic-release`
 - `npm run sync`: syncs Astro content/types
 - `npm run lint`: lints the project
 - `npm run format`: applies formatting
 - `npm run format:check`: checks formatting only
 
 Note: `build` copies `dist/pagefind` into `public/pagefind`. During local work, this folder may appear as modified in your git working tree.
+
+## Automated Release and Docker Publish (GHCR)
+
+The repository uses semantic-release in `.github/workflows/docker-build-push.yml`.
+
+Flow on push to `main` or `master`:
+
+1. `semantic-release` calculates the next version from commit messages and creates `v<version>` tag + GitHub release.
+2. Release commit updates `package.json`, `package-lock.json`, and `CHANGELOG.md`.
+3. Docker image is built and pushed to GHCR only when a new release is actually published.
+4. The workflow verifies `package.json.version` is exactly the published release version.
+
+Container destination:
+
+- `ghcr.io/<owner>/<repo>` (lowercase, derived from `github.repository`)
+- tags: `<version>`, `v<version>`, `latest`
+
+Important:
+
+- Do not create git tags manually.
+- Trigger releases only via Conventional Commits merged/pushed to `main`/`master`.
+
+## Conventional Commits for Versioning
+
+Version bump rules:
+
+- `fix:` -> patch release
+- `feat:` -> minor release
+- `BREAKING CHANGE` footer or `!` in type/scope -> major release
+
+Examples:
+
+- `fix(search): handle empty query`
+- `feat(posts): add related articles section`
+- `feat(api)!: remove deprecated endpoint`
 
 ## Site Configuration
 
