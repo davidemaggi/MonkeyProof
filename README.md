@@ -22,7 +22,6 @@ MonkeyProof is a personal blog built with Astro, focused on software architectur
 - [Main and OG Images](#main-and-og-images)
 - [Galleries](#galleries)
 - [Full-Text Search (Pagefind)](#full-text-search-pagefind)
-- [GitHub Pages Deploy (Custom Domain)](#github-pages-deploy-custom-domain)
 - [Troubleshooting](#troubleshooting)
 - [License](#license)
 
@@ -34,7 +33,7 @@ Main features:
 - Light/dark theme, client-side search, and custom UI.
 - Dynamic Open Graph images for posts (with frontmatter/config fallbacks).
 - Support for article main images (`mainImage`) rendered as a dedicated card below the title.
-- Automated deploy to GitHub Pages with a custom domain.
+- Automated semantic-release and Docker publish to GHCR.
 
 ## Tech Stack
 
@@ -56,7 +55,6 @@ Main paths:
 - `src/data/galleries/`: gallery content
 - `src/config.ts`: main site configuration
 - `src/content.config.ts`: collection frontmatter schema
-- `.github/workflows/deploy-pages.yml`: GitHub Pages deploy pipeline
 - `.github/workflows/docker-build-push.yml`: semantic-release + Docker publish to GHCR
 
 ## Prerequisites
@@ -231,30 +229,6 @@ Pagefind is generated at build time via:
 
 In local flow, the index is also copied into `public/pagefind` by the `build` script.
 
-## GitHub Pages Deploy (Custom Domain)
-
-Automated deploy is configured in:
-
-- `.github/workflows/deploy-pages.yml`
-
-Pipeline:
-
-1. Checkout
-2. Setup Node `22.12.0`
-3. `npm ci`
-4. Build (`astro check`, `astro build --site "https://monkeyproof.dev" --base "/"`, `pagefind`)
-5. Upload `dist` artifact
-6. Deploy via `actions/deploy-pages`
-
-Custom domain:
-
-- `public/CNAME` set to `monkeyproof.dev`
-
-One-time GitHub setting:
-
-1. Repository Settings -> Pages
-2. Source: `GitHub Actions`
-
 ## Troubleshooting
 
 ### EBADENGINE / EUSAGE during `npm ci`
@@ -269,12 +243,6 @@ node -v
 npm -v
 npm ci
 ```
-
-### Build succeeds but Pages is not published
-
-- Ensure GitHub Pages source is `GitHub Actions`.
-- Ensure workflow permissions include `pages: write` and `id-token: write`.
-- Ensure `monkeyproof.dev` DNS is correctly pointed to GitHub Pages.
 
 ### `/monkeyproof-og.png` not resolved
 
