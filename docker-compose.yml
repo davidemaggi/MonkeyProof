@@ -1,0 +1,11 @@
+services:
+  monkeyproof:
+    container_name: monkeyproof
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ghcr.io/davidemaggi/monkeyproof:${IMAGE_TAG:-latest}
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
