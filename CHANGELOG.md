@@ -1,3 +1,9 @@
+## [1.0.3](https://github.com/davidemaggi/MonkeyProof/compare/v1.0.2...v1.0.3) (2026-05-01)
+
+### Bug Fixes
+
+* fixed json stringify ([df8c01f](https://github.com/davidemaggi/MonkeyProof/commit/df8c01f575449804568e4c198de5bfa9df874644))
+
 ## [1.0.2](https://github.com/davidemaggi/MonkeyProof/compare/v1.0.1...v1.0.2) (2026-04-26)
 
 ### Bug Fixes
