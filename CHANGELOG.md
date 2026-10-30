@@ -1,3 +1,13 @@
+## [1.1.0](https://github.com/davidemaggi/MonkeyProof/compare/v1.0.3...v1.1.0) (2026-10-30)
+
+### Features
+
+* redesign the blog in the DaveOS Aurora Glass style ([66f0c3a](https://github.com/davidemaggi/MonkeyProof/commit/66f0c3a85250e21aba6c9debcc885c5af8196caa))
+
+### Bug Fixes
+
+* **ci:** pin conventionalcommits preset to v8 for semantic-release 24 ([44adb74](https://github.com/davidemaggi/MonkeyProof/commit/44adb740bd060e511b92155ce6e5858181bb98b9))
+
 ## [1.0.3](https://github.com/davidemaggi/MonkeyProof/compare/v1.0.2...v1.0.3) (2026-05-01)
 
 ### Bug Fixes
