@@ -40,7 +40,7 @@ jobs:
           extra_plugins: |
             @semantic-release/commit-analyzer
             @semantic-release/release-notes-generator
-            conventional-changelog-conventionalcommits
+            conventional-changelog-conventionalcommits@8
             @semantic-release/changelog
             @semantic-release/npm
             @semantic-release/git
