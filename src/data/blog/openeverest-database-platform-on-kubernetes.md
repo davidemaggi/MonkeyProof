@@ -28,22 +28,6 @@ This article walks through a realistic setup and operations flow, including inst
 
 ---
 
-## Table of contents
-
-- [Why This Problem Still Hurts in 2026](#why-this-problem-still-hurts-in-2026)
-- [What OpenEverest Actually Adds](#what-openeverest-actually-adds)
-- [Real-Life Example: A Platform Team Under Pressure](#real-life-example-a-platform-team-under-pressure)
-- [Implementation Steps](#implementation-steps)
-- [How This Helps on Day 2](#how-this-helps-on-day-2)
-- [Tradeoffs and Limitations You Should Know](#tradeoffs-and-limitations-you-should-know)
-- [Practical Takeaways](#practical-takeaways)
-- [Conclusion](#conclusion)
-- [Further Reading](#further-reading)
-- [Related Topics You Might Want Next](#related-topics-you-might-want-next)
-- [Practical Next Steps](#practical-next-steps)
-
----
-
 ## Why This Problem Still Hurts in 2026
 
 Most teams are already comfortable shipping stateless services on Kubernetes. Databases are where the smooth story gets messy.

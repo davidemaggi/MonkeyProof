@@ -1,41 +1,88 @@
 ---
-/**
- * ShareLinks — Renders social media share buttons for the current page (e.g. inside a post).
- * Retrieves the available platforms from the SHARE_LINKS constant in `constants.ts`.
- */
+import Icon from "@/components/Icon.astro";
 import { SHARE_LINKS } from "@/constants";
-import LinkButton from "./LinkButton.astro";
 
-const URL = Astro.url;
+type Props = { title: string };
+const { title } = Astro.props;
+const url = Astro.url.href;
 ---
 
-{
-  SHARE_LINKS.length > 0 && (
-    <div class="flex shrink-0 flex-col items-center gap-2 sm:items-end">
-      <span class="font-cartograph text-[10px] tracking-wider text-foreground/40 uppercase select-none">
-        Share
-      </span>
-      <div class="flex items-center gap-1">
-        {SHARE_LINKS.map(social => (
-          <LinkButton
-            href={`${social.href + URL}`}
+<div class="share" data-pagefind-ignore>
+  <p class="share__label" id="share-label">Liked it? Pass it on</p>
+  <ul class="share__list" aria-labelledby="share-label">
+    {
+      SHARE_LINKS.map(s => (
+        <li>
+          <a
+            class="share__btn"
+            href={`${s.href}${encodeURIComponent(s.name === "Mail" ? `${title} — ${url}` : url)}`}
             target="_blank"
             rel="noopener noreferrer"
-            class="share-btn inline-flex size-8 items-center justify-center rounded-lg border border-border/20 bg-muted/5 transition-all duration-200 hover:border-accent/40 hover:bg-accent/10 hover:text-accent hover:shadow-sm hover:shadow-accent/10"
-            title={social.linkTitle}
+            aria-label={s.linkTitle}
+            title={s.linkTitle}
           >
-            <social.icon class="size-4 fill-transparent stroke-current stroke-2" />
-            <span class="sr-only">{social.linkTitle}</span>
-          </LinkButton>
-        ))}
-      </div>
-    </div>
-  )
-}
+            <Icon name={s.icon} />
+          </a>
+        </li>
+      ))
+    }
+    <li>
+      <button type="button" class="share__btn" data-copy-link={url} aria-label="Copy link" title="Copy link">
+        <Icon name="link" />
+      </button>
+    </li>
+  </ul>
+</div>
 
 <style>
-  .share-btn {
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
+  .share {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .share__label {
+    margin: 0;
+    font-family: var(--hand);
+    font-size: 17px;
+    color: var(--muted);
+  }
+
+  .share__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .share__btn {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--surface-2);
+    color: var(--muted);
+    transition: color 150ms ease, border-color 150ms ease, transform 260ms var(--ease-spring);
+  }
+
+  .share__btn:hover,
+  .share__btn:focus-visible {
+    transform: translateY(-2px) rotate(-8deg);
+    border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+    color: var(--window-text);
+  }
+
+  .share__btn[data-copied] {
+    color: #34d399;
+  }
+
+  .share__btn .icon {
+    width: 18px;
+    height: 18px;
   }
 </style>

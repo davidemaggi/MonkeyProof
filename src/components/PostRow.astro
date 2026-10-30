@@ -1,0 +1,246 @@
+---
+/**
+ * One entry in a listing window. Posts and galleries share the row; the
+ * `lead` variant gives the newest/featured entry a wide image.
+ */
+import { Image } from "astro:assets";
+import Icon from "@/components/Icon.astro";
+import { getEntryPath, type ContentEntry } from "@/utils/contentEntry";
+import { formatDate, readingMinutes } from "@/utils/format";
+import { slugifyStr } from "@/utils/slugify";
+
+type Props = {
+  entry: ContentEntry;
+  variant?: "row" | "lead";
+  headingLevel?: "h2" | "h3";
+  eager?: boolean;
+};
+
+const { entry, variant = "row", headingLevel: Heading = "h3", eager = false } = Astro.props;
+const { data } = entry;
+const href = getEntryPath(entry);
+const isGallery = entry.collection === "galleries";
+const tz = "timezone" in data ? data.timezone : undefined;
+const image =
+  entry.collection === "galleries"
+    ? entry.data.coverImage
+    : typeof entry.data.mainImage === "object"
+      ? entry.data.mainImage
+      : undefined;
+const imageAlt = entry.collection === "blog" ? (entry.data.mainImageAlt ?? "") : "";
+const minutes = isGallery ? 0 : readingMinutes(entry.body);
+const tags = data.tags.slice(0, variant === "lead" ? 4 : 3);
+---
+
+<li class:list={["post-row", `post-row--${variant}`, { "has-image": image }]}>
+  {
+    image && (
+      <a class="post-row__media" href={href} tabindex="-1" aria-hidden="true">
+        <Image
+          src={image}
+          alt={imageAlt}
+          widths={variant === "lead" ? [480, 800, 1200] : [240, 480]}
+          sizes={variant === "lead" ? "(max-width: 900px) 100vw, 560px" : "200px"}
+          loading={eager ? "eager" : "lazy"}
+          fetchpriority={eager ? "high" : undefined}
+        />
+      </a>
+    )
+  }
+  <div class="post-row__body">
+    <p class="post-row__meta meta">
+      <time datetime={data.pubDatetime.toISOString()}>
+        {formatDate(data.pubDatetime, tz)}
+      </time>
+      {minutes > 0 && <span>{minutes} min read</span>}
+      {isGallery && (
+        <span class="post-row__kind">
+          <Icon name="photo" /> Gallery
+        </span>
+      )}
+    </p>
+    <Heading class="post-row__title">
+      <a href={href} class="post-row__link" transition:name={`title-${slugifyStr(data.title)}`}>
+        {data.title}
+      </a>
+    </Heading>
+    <p class="post-row__desc">{data.description}</p>
+    {
+      tags.length > 0 && (
+        <ul class="post-row__tags" aria-label="Tags">
+          {tags.map(tag => (
+            <li>
+              <a class="tag" href={`/tags/${slugifyStr(tag)}/`}>
+                {tag}
+              </a>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </div>
+</li>
+
+<style>
+  .post-row {
+    position: relative;
+    display: grid;
+    gap: 1.25rem;
+    padding: 1.5rem clamp(1rem, 3vw, 2rem);
+    border-top: 1.5px dashed var(--line);
+    transition: background 180ms ease;
+  }
+
+  .post-row:first-child {
+    border-top: 0;
+  }
+
+  .post-row:hover {
+    background: color-mix(in srgb, var(--surface-2) 70%, transparent);
+  }
+
+  .post-row--row.has-image {
+    grid-template-columns: 1fr 200px;
+    align-items: start;
+  }
+
+  .post-row--row .post-row__media {
+    order: 2;
+  }
+
+  .post-row__media {
+    display: block;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: var(--surface-2);
+    transition: transform 320ms var(--ease-spring);
+  }
+
+  .post-row:hover .post-row__media {
+    transform: rotate(-1.5deg);
+  }
+
+  .post-row__media :global(img) {
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    transition: transform 500ms var(--ease-out);
+  }
+
+  .post-row:hover .post-row__media :global(img) {
+    transform: scale(1.04);
+  }
+
+  .post-row--lead {
+    padding-block: clamp(1.5rem, 3vw, 2.25rem);
+  }
+
+  .post-row--lead.has-image {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    align-items: center;
+    gap: clamp(1.25rem, 3vw, 2.5rem);
+  }
+
+  .post-row__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem 0.9rem;
+    margin: 0 0 0.5rem;
+  }
+
+  .post-row__meta > * + *::before {
+    content: "·";
+    margin-right: 0.9rem;
+    opacity: 0.5;
+  }
+
+  .post-row__kind {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: var(--accent-text);
+  }
+
+  .post-row__title {
+    margin: 0;
+    font-family: var(--display);
+    font-size: 1.3rem;
+    font-weight: 650;
+    letter-spacing: -0.025em;
+    line-height: 1.25;
+    color: var(--prose-strong);
+    text-wrap: balance;
+  }
+
+  .post-row--lead .post-row__title {
+    font-size: clamp(1.6rem, 3.2vw, 2.25rem);
+    letter-spacing: -0.035em;
+    line-height: 1.1;
+  }
+
+  /* The whole row is the hit area; the title link stretches over it. */
+  .post-row__link::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+  }
+
+  .post-row__link:focus-visible {
+    outline: none;
+  }
+
+  .post-row:has(.post-row__link:focus-visible) {
+    outline: 2px solid var(--accent-2);
+    outline-offset: -2px;
+    border-radius: 18px;
+  }
+
+  .post-row__desc {
+    margin: 0.5rem 0 0;
+    max-width: 68ch;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .post-row--lead .post-row__desc {
+    font-size: 1.05rem;
+  }
+
+  .post-row__tags {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 0.9rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (max-width: 900px) {
+    .post-row--lead.has-image {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .post-row--row.has-image {
+      grid-template-columns: 1fr 96px;
+      gap: 0.9rem;
+    }
+
+    .post-row--row .post-row__desc {
+      display: -webkit-box;
+      overflow: hidden;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+    }
+
+    .post-row__title {
+      font-size: 1.15rem;
+    }
+  }
+</style>

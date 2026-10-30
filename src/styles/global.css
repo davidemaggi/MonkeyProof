@@ -1,200 +1,843 @@
 @import "tailwindcss";
-@import "./typography.css";
+@import "./prose.css";
 
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
+/* ==========================================================================
+   MonkeyProof — an app inside DaveOS 2 "Aurora Glass".
+   Tokens mirror davidemaggi.dev so the two sites read as one desktop.
+   Chrome (menu bar, widgets, popovers) is glass; reading surfaces are solid.
+   ========================================================================== */
+
+:root {
+  --display: var(--font-display), "Space Grotesk", system-ui, sans-serif;
+  --sans: var(--font-body), "Inter", system-ui, sans-serif;
+  --mono: var(--font-mono), "JetBrains Mono", ui-monospace, monospace;
+  --hand: var(--font-hand), "Sriracha", cursive;
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in: cubic-bezier(0.55, 0, 1, 0.45);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  --menubar-h: 32px;
+  --page-gutter: clamp(0.75rem, 3vw, 2rem);
+  --content-max: 1180px;
+  --measure: 68ch;
+
+  /* z-index scale */
+  --z-wallpaper: 0;
+  --z-content: 10;
+  --z-menubar: 40;
+  --z-popover: 60;
+  --z-overlay: 80;
+
+  color-scheme: dark;
+}
+
+/* ---------- Dark theme (default) ---------- */
 :root,
-html[data-theme="light"] {
-  --background: #fbf8ef;
-  --foreground: #4f4633;
-  --accent: #e2be63;
-  --muted: #f1e6c9;
-  --border: #ebd89f;
+[data-theme="dark"] {
+  --accent: #8b7bff;
+  --accent-2: #3ee6ff;
+  --accent-3: #ff5ea8;
+  --accent-text: #a99dff;
+  --link: #8ef1ff;
+
+  --glass-text: #eef0f8;
+  --glass-bg: #10121dad;
+  --glass-solid: #0f111cd1;
+  --glass-strong: #10121de6;
+  --glass-border: #ffffff1c;
+  --glass-highlight: #ffffff14;
+
+  --window-bg: #0c0e17;
+  --window-text: #e6e8f2;
+  --window-border: #ffffff1f;
+  --titlebar-bg: #161927b8;
+  --titlebar-border: #ffffff0f;
+  --window-shadow:
+    0 0 0 1px #00000059, 0 40px 90px -30px #000000d9,
+    0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent),
+    0 30px 80px -40px color-mix(in srgb, var(--accent) 70%, transparent);
+
+  --surface-2: #121522;
+  --surface-3: #1b1f30;
+  --line: #262b3f;
+  --muted: #9aa1b9;
+
+  --prose: #c9cede;
+  --prose-strong: #f3f4fa;
+  --code-bg: #0a0c14;
+  --mark: #3ee6ff26;
+
+  --scrollbar-thumb: #ffffff26;
+  --scrollbar-thumb-hover: #ffffff47;
+  color-scheme: dark;
 }
 
-html[data-theme="dark"] {
-  --background: #1f1a12;
-  --foreground: #efe7d2;
-  --accent: #d8b66a;
-  --muted: #3b3222;
-  --border: #7e6a42;
+/* ---------- Light theme ---------- */
+[data-theme="light"] {
+  --accent: #6a52ff;
+  --accent-2: #0891b2;
+  --accent-text: #5a41f0;
+  --link: #0e7490;
+
+  --glass-text: #141724;
+  --glass-bg: #ffffffa6;
+  --glass-solid: #ffffffc7;
+  --glass-strong: #ffffffe6;
+  --glass-border: #0f172a1a;
+  --glass-highlight: #ffffffb3;
+
+  --window-bg: #fbfbfe;
+  --window-text: #141724;
+  --window-border: #0f172a1f;
+  --titlebar-bg: #f4f5fbcc;
+  --titlebar-border: #0f172a12;
+  --window-shadow:
+    0 0 0 1px #0f172a14, 0 40px 80px -30px #1e1b4b59,
+    0 0 0 1px color-mix(in srgb, var(--accent) 25%, transparent);
+
+  --surface-2: #f2f3f9;
+  --surface-3: #e7e9f2;
+  --line: #d8dbe8;
+  --muted: #565c72;
+
+  --prose: #2a2f42;
+  --prose-strong: #0d1020;
+  --code-bg: #f4f5fa;
+  --mark: #0891b21f;
+
+  --scrollbar-thumb: #0f172a2e;
+  --scrollbar-thumb-hover: #0f172a52;
+  color-scheme: light;
 }
 
-@theme inline {
-  --font-app: var(--font-wotfard);
-  --font-sriracha: var(--font-sriracha);
-  --font-cartograph: var(--font-cartograph);
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-accent: var(--accent);
-  --color-muted: var(--muted);
-  --color-border: var(--border);
+/* ---------- Wallpapers (same presets as DaveOS) ---------- */
+:root,
+[data-wallpaper="aurora"] {
+  --wp-base: #06070d;
+  --wp-1: #6d4aff;
+  --wp-2: #00c2ff;
+  --wp-3: #ff3d9a;
+  --wp-4: #12d6a6;
+  --wp-blend: screen;
+  --wp-stars: 0.9;
+  --ground-text: #f5f6fb;
 }
 
-.italic,
-.prose em,
-em,
-i {
-  font-family: var(--font-sriracha);
-  font-style: italic;
+[data-wallpaper="graphite"] {
+  --wp-base: #08090d;
+  --wp-1: #3a3f52;
+  --wp-2: #23283a;
+  --wp-3: #4b5168;
+  --wp-4: #1b1f2c;
+  --wp-stars: 0.6;
 }
 
-.spicy {
-  font-family: var(--font-sriracha);
+[data-wallpaper="cobalt"] {
+  --wp-base: #020615;
+  --wp-1: #1d4ed8;
+  --wp-2: #0ea5e9;
+  --wp-3: #4338ca;
+  --wp-4: #22d3ee;
+  --wp-stars: 0.85;
 }
 
-@layer base {
-  * {
-    @apply border-border outline-accent/75;
-    scrollbar-width: auto;
-    scrollbar-color: var(--color-muted) transparent;
-  }
-  html {
-    @apply overflow-y-scroll scroll-smooth;
-  }
-  body {
-    @apply flex min-h-svh flex-col bg-background font-app text-foreground selection:bg-accent/75 selection:text-background;
-  }
-  a,
-  button {
-    @apply outline-offset-1 outline-accent focus-visible:no-underline focus-visible:outline-2 focus-visible:outline-dashed;
-  }
-  button:not(:disabled),
-  [role="button"]:not(:disabled) {
-    cursor: pointer;
-  }
+[data-wallpaper="ember"] {
+  --wp-base: #0c0403;
+  --wp-1: #ff3b1f;
+  --wp-2: #f59e0b;
+  --wp-3: #be123c;
+  --wp-4: #fb7a3c;
+  --wp-stars: 0.5;
 }
 
-@utility max-w-app {
-  @apply max-w-4xl xl:max-w-5xl;
+[data-wallpaper="prism"] {
+  --wp-base: #07050e;
+  --wp-1: #ff4d6d;
+  --wp-2: #b46cff;
+  --wp-3: #4cc9f0;
+  --wp-4: #6ee7a0;
+  --wp-stars: 0.7;
 }
 
-@utility app-layout {
-  @apply mx-auto w-full max-w-app px-4;
+[data-wallpaper="pearl"] {
+  --ground-text: #11131c;
+  --wp-base: #f4f2fb;
+  --wp-1: #c4b5fd;
+  --wp-2: #a5e4fc;
+  --wp-3: #fbcfe8;
+  --wp-4: #fde68a;
+  --wp-blend: multiply;
+  --wp-stars: 0;
 }
 
-.active-nav {
-  @apply text-accent;
+/* The Dark Side also takes over the accent, as it does in DaveOS. */
+[data-wallpaper="darkside"] {
+  --wp-base: #070102;
+  --wp-1: #dc2626;
+  --wp-2: #7f1d1d;
+  --wp-3: #f43f5e;
+  --wp-4: #450a0a;
+  --wp-stars: 0.75;
+  --accent: #ef4444;
+  --accent-2: #fb923c;
+  --accent-3: #f43f5e;
+  --accent-text: #f87171;
+  --link: #fdba74;
 }
 
-/* Source: https://piccalil.li/blog/a-more-modern-css-reset/ */
-/* Anything that has been anchored to should have extra scroll margin */
-:target {
-  scroll-margin-block: 5rem;
+[data-theme="light"][data-wallpaper="darkside"] {
+  --accent-text: #c81e1e;
+  --link: #c2410c;
 }
 
-/* Premium Pagefind Overrides */
-.premium-search {
-  width: 100%;
-  --pagefind-ui-font: var(--font-app);
-  --pagefind-ui-text: var(--foreground);
-  --pagefind-ui-background: transparent;
-  --pagefind-ui-border: color-mix(in srgb, var(--border) 50%, transparent);
-  --pagefind-ui-primary: var(--accent);
-  --pagefind-ui-tag: var(--background);
-  --pagefind-ui-border-radius: 0.75rem;
+:root {
+  --accent-gradient: linear-gradient(120deg, var(--accent) 0%, var(--accent-2) 100%);
 }
 
-/* Search input look */
-.premium-search input.pagefind-ui__search-input {
-  font-weight: 400;
-  border: 1px solid color-mix(in srgb, var(--border) 40%, transparent);
-  border-radius: 1rem;
-  background: color-mix(in srgb, var(--foreground) 3%, var(--background));
-  padding: 1rem 1rem 1rem 3.5rem;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 20px -5px color-mix(in srgb, var(--background) 50%, transparent);
+/* ==========================================================================
+   Base
+   ========================================================================== */
+
+html {
+  background: var(--wp-base);
+  scrollbar-gutter: stable;
+  -webkit-text-size-adjust: 100%;
 }
 
-.premium-search input.pagefind-ui__search-input:focus-visible {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow:
-    0 0 0 3px color-mix(in srgb, var(--accent) 12%, transparent),
-    0 4px 30px color-mix(in srgb, var(--accent) 15%, transparent);
-  background: color-mix(in srgb, var(--accent) 3%, var(--background));
+body {
+  margin: 0;
+  min-height: 100dvh;
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--window-text);
+  background: var(--wp-base);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
-.premium-search input.pagefind-ui__search-input::placeholder {
-  color: color-mix(in srgb, var(--foreground) 35%, transparent);
+::selection {
+  background: color-mix(in srgb, var(--accent) 45%, transparent);
+  color: inherit;
 }
 
-.premium-search form::before {
-  background-color: var(--foreground);
-  opacity: 0.6;
-  width: 20px;
-  height: 20px;
-  left: 20px;
-  top: calc(50% - 10px);
+:focus-visible {
+  outline: 2px solid var(--accent-2);
+  outline-offset: 2px;
+  border-radius: 6px;
 }
 
-.premium-search .pagefind-ui__search-clear {
-  border-radius: 0.5rem;
-  padding: 0 1rem;
-  background: color-mix(in srgb, var(--foreground) 5%, transparent);
-  right: 10px;
-}
-
-.premium-search .pagefind-ui__search-clear:hover {
-  background: color-mix(in srgb, var(--accent) 15%, transparent);
-  color: var(--accent);
-}
-
-.premium-search .pagefind-ui__results-area {
-  margin-top: 1.5rem;
-}
-
-.premium-search .pagefind-ui__results .pagefind-ui__result.pagefind-ui__result {
-  padding: 1.25rem 1.25rem 1.25rem 1.55rem;
-  border: 1px solid color-mix(in srgb, var(--border) 30%, transparent);
-  border-radius: 1rem;
-  background: color-mix(in srgb, var(--foreground) 2%, var(--background));
-  transition: all 0.2s ease;
-  margin-bottom: 1rem;
-}
-
-.premium-search .pagefind-ui__results .pagefind-ui__result.pagefind-ui__result:hover {
-  border-color: color-mix(in srgb, var(--accent) 30%, transparent);
-  background: color-mix(in srgb, var(--accent) 4%, var(--background));
-  transform: translateY(-2px);
-  box-shadow: 0 10px 30px -10px color-mix(in srgb, var(--accent) 15%, transparent);
-}
-
-.premium-search .pagefind-ui__result-title a {
-  color: var(--foreground);
-  transition: color 0.2s ease;
+a {
+  color: inherit;
   text-decoration: none;
 }
 
-.premium-search .pagefind-ui__result:hover .pagefind-ui__result-title a {
-  color: var(--accent);
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
 }
 
-.premium-search .pagefind-ui__result-excerpt {
+img,
+svg {
+  display: block;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+  background-clip: padding-box;
+}
+
+.icon {
+  width: 1em;
+  height: 1em;
+  flex-shrink: 0;
+}
+
+.skip-link {
+  position: fixed;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: var(--z-overlay);
+  padding: 0.5rem 0.9rem;
+  border-radius: 10px;
+  background: var(--window-bg);
+  color: var(--window-text);
+  transform: translateY(-200%);
+}
+
+.skip-link:focus-visible {
+  transform: none;
+}
+
+/* ==========================================================================
+   Wallpaper — layered mesh blobs + stars + grid + grain + vignette
+   ========================================================================== */
+
+.wallpaper {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-wallpaper);
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--wp-base);
+  transition: background 600ms ease, opacity 500ms ease, filter 500ms ease;
+}
+
+.wallpaper__blob {
+  position: absolute;
+  width: 70vmax;
+  height: 70vmax;
+  border-radius: 50%;
+  opacity: 0.75;
+  will-change: transform;
+  contain: strict;
+  transition: opacity 500ms ease;
+}
+
+.wallpaper__blob--1 {
+  top: -30vmax;
+  left: -18vmax;
+  background: radial-gradient(circle at center, var(--wp-1) 0%, transparent 62%);
+  animation: wp-drift-1 26s ease-in-out infinite alternate;
+}
+
+.wallpaper__blob--2 {
+  top: -12vmax;
+  right: -28vmax;
+  background: radial-gradient(circle at center, var(--wp-2) 0%, transparent 60%);
+  animation: wp-drift-2 32s ease-in-out infinite alternate;
+}
+
+.wallpaper__blob--3 {
+  bottom: -38vmax;
+  left: 18vmax;
+  background: radial-gradient(circle at center, var(--wp-3) 0%, transparent 60%);
+  opacity: 0.55;
+  animation: wp-drift-3 29s ease-in-out infinite alternate;
+}
+
+.wallpaper__blob--4 {
+  bottom: -30vmax;
+  right: -10vmax;
+  width: 55vmax;
+  height: 55vmax;
+  background: radial-gradient(circle at center, var(--wp-4) 0%, transparent 62%);
+  opacity: 0.45;
+  animation: wp-drift-4 35s ease-in-out infinite alternate;
+}
+
+.wallpaper__stars {
+  position: absolute;
+  inset: -50%;
+  opacity: var(--wp-stars);
+  background-image:
+    radial-gradient(1px 1px at 20px 30px, #ffffffd9, transparent 60%),
+    radial-gradient(1px 1px at 140px 90px, #ffffffa6, transparent 60%),
+    radial-gradient(1.5px 1.5px at 260px 180px, #ffffffcc, transparent 60%),
+    radial-gradient(1px 1px at 330px 40px, #ffffff8c, transparent 60%),
+    radial-gradient(1px 1px at 80px 220px, #ffffff99, transparent 60%),
+    radial-gradient(1.5px 1.5px at 400px 300px, #c7d2ffcc, transparent 60%);
+  background-size: 440px 340px;
+  animation: wp-stars 240s linear infinite;
+  will-change: transform;
+}
+
+.wallpaper__stars--far {
+  opacity: calc(var(--wp-stars) * 0.55);
+  background-size: 260px 220px;
+  animation-duration: 420s;
+}
+
+.wallpaper__grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, #ffffff08 1px, transparent 1px),
+    linear-gradient(to bottom, #ffffff08 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, #000 20%, transparent 75%);
+}
+
+[data-wallpaper="pearl"] .wallpaper__grid {
+  background-image:
+    linear-gradient(to right, #0f172a0d 1px, transparent 1px),
+    linear-gradient(to bottom, #0f172a0d 1px, transparent 1px);
+}
+
+[data-wallpaper="darkside"] .wallpaper__grid {
+  display: none;
+}
+
+.wallpaper__saber {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 150vmax;
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent 0%, #fff 8%, #fff 92%, transparent 100%);
+  box-shadow:
+    0 0 6px 2px #ff4d4d,
+    0 0 22px 8px #ef4444cc,
+    0 0 80px 30px #b91c1c66;
+  transform: translate(-50%, -50%) rotate(-28deg);
+  animation: saber-hum 2.4s ease-in-out infinite alternate;
+}
+
+[data-wallpaper="darkside"] .wallpaper__saber {
+  display: block;
+}
+
+.wallpaper__glow {
+  position: absolute;
+  top: -300px;
+  left: -300px;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--wp-2) 22%, transparent) 0%, transparent 60%);
+  transform: translate3d(50vw, 40vh, 0);
+  will-change: transform;
+}
+
+.wallpaper__grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.045;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+.wallpaper__vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 45%, transparent 55%, #00000073 100%);
+}
+
+[data-wallpaper="pearl"] .wallpaper__vignette {
+  background: radial-gradient(ellipse at 50% 45%, transparent 60%, #6d5bd01a 100%);
+}
+
+/* While reading, the desktop steps back so the column owns attention. */
+[data-reading] .wallpaper__blob {
+  opacity: 0.38;
+}
+
+[data-reading] .wallpaper__saber {
+  opacity: 0.35;
+}
+
+[data-focus="true"] .wallpaper {
+  filter: saturate(0.4) brightness(0.55);
+}
+
+[data-theme="light"][data-focus="true"] .wallpaper {
+  filter: saturate(0.4) brightness(1.05);
+}
+
+@keyframes wp-drift-1 { to { transform: translate3d(14vmax, 10vmax, 0) scale(1.12); } }
+@keyframes wp-drift-2 { to { transform: translate3d(-16vmax, 12vmax, 0) scale(0.92); } }
+@keyframes wp-drift-3 { to { transform: translate3d(-12vmax, -14vmax, 0) scale(1.18); } }
+@keyframes wp-drift-4 { to { transform: translate3d(-18vmax, -6vmax, 0) scale(1.1); } }
+@keyframes wp-stars { to { transform: translate3d(-440px, -340px, 0); } }
+@keyframes saber-hum { from { opacity: 0.82; } to { opacity: 1; } }
+
+/* ==========================================================================
+   Shared glass surface
+   ========================================================================== */
+
+.glass {
+  color: var(--glass-text);
+  background: var(--glass-solid);
+  border: 1px solid var(--glass-border);
+  box-shadow: inset 0 1px 0 var(--glass-highlight), 0 18px 50px -18px #00000099;
+}
+
+[data-theme="light"] .glass {
+  box-shadow: inset 0 1px 0 var(--glass-highlight), 0 18px 50px -20px #3b2f8a40;
+}
+
+.glass-blur {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px) saturate(170%);
+  -webkit-backdrop-filter: blur(20px) saturate(170%);
+}
+
+/* ==========================================================================
+   Desktop layout
+   ========================================================================== */
+
+.desktop {
+  position: relative;
+  z-index: var(--z-content);
+  min-height: 100dvh;
+  padding-top: var(--menubar-h);
+  display: flex;
+  flex-direction: column;
+}
+
+.desktop__main {
+  flex: 1;
+  width: 100%;
+  max-width: calc(var(--content-max) + var(--page-gutter) * 2);
+  margin: 0 auto;
+  padding: clamp(1.25rem, 4vw, 3rem) var(--page-gutter) 2rem;
+}
+
+/* ==========================================================================
+   Panel — solid reading surface on the wallpaper
+   ========================================================================== */
+
+.panel {
+  position: relative;
+  border: 1px solid var(--window-border);
+  border-radius: 26px;
+  background: var(--window-bg);
+  color: var(--window-text);
+  box-shadow: var(--window-shadow);
+  animation: panel-in 420ms var(--ease-out) both;
+}
+
+.panel__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 48px;
+  padding: 0.6rem clamp(1rem, 3vw, 2rem);
+  border-top: 1px solid var(--line);
+  border-radius: 0 0 25px 25px;
+  background: color-mix(in srgb, var(--surface-2) 70%, transparent);
+  font-size: 13px;
+  color: var(--muted);
+}
+
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+/* ==========================================================================
+   Shared controls
+   ========================================================================== */
+
+.action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 44px;
+  border-radius: 999px;
+  padding: 0.55rem 1.15rem;
+  color: var(--glass-text);
+  font-weight: 500;
+  font-size: 15px;
+  transition: transform 260ms var(--ease-spring), border-color 180ms ease, background 180ms ease;
+}
+
+.action:hover,
+.action:focus-visible {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--accent) 60%, transparent);
+}
+
+.action:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.action--primary {
+  color: #fff;
+  border: 1px solid #ffffff33;
+  background: var(--accent-gradient);
+  box-shadow: 0 12px 30px -10px color-mix(in srgb, var(--accent) 80%, transparent), inset 0 1px 0 #ffffff59;
+}
+
+.action--primary:hover,
+.action--primary:focus-visible {
+  border-color: #ffffff66;
+}
+
+.action .icon {
+  width: 18px;
+  height: 18px;
+}
+
+.action kbd,
+.kbd {
+  font-family: var(--mono);
+  font-size: 11px;
   opacity: 0.7;
-  font-size: 0.9rem;
-  line-height: 1.6;
-  margin-top: 0.5rem;
 }
 
-.premium-search .pagefind-ui__result-excerpt mark {
-  background: color-mix(in srgb, var(--accent) 25%, transparent);
-  color: var(--accent);
-  padding: 0.1em 0.3em;
-  border-radius: 4px;
+.icon-square {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 16px;
+  transition: transform 260ms var(--ease-spring), border-color 180ms ease;
+}
+
+.icon-square:hover,
+.icon-square:focus-visible {
+  transform: translateY(-2px) rotate(-6deg);
+  border-color: color-mix(in srgb, var(--accent-2) 60%, transparent);
+}
+
+.icon-square .icon {
+  width: 20px;
+  height: 20px;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15em;
+  min-height: 26px;
+  padding: 0.1rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--surface-2) 80%, transparent);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+  transition: color 160ms ease, border-color 160ms ease, background 160ms ease, transform 260ms var(--ease-spring);
+}
+
+.tag::before {
+  content: "#";
+  color: var(--accent-text);
+  opacity: 0.8;
+}
+
+a.tag:hover,
+a.tag:focus-visible {
+  color: var(--accent-text);
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  transform: rotate(-3deg) translateY(-1px);
+}
+
+.meta {
+  font-size: 13px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.link-arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--accent-text);
+  font-weight: 500;
+}
+
+.link-arrow .icon {
+  transition: transform 180ms var(--ease-out);
+}
+
+.link-arrow:hover .icon {
+  transform: translateX(3px);
+}
+
+.page-heading {
+  margin: 0;
+  font-family: var(--display);
+  font-size: clamp(2rem, 4.5vw, 3.25rem);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: var(--prose-strong);
+  text-wrap: balance;
+}
+
+.page-lede {
+  margin: 0.9rem 0 0;
+  max-width: 60ch;
+  color: var(--muted);
+  font-size: 1.05rem;
+  text-wrap: pretty;
+}
+
+/* ==========================================================================
+   View transitions + reduced motion
+   ========================================================================== */
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 220ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .wallpaper__glow {
+    display: none;
+  }
+}
+
+/* ==========================================================================
+   Widgets (glass, on the wallpaper)
+   ========================================================================== */
+
+.widget {
+  padding: 1.15rem 1.25rem;
+  border-radius: 26px;
+  color: var(--glass-text);
+}
+
+.widget__label {
+  margin: 0;
+  font-family: var(--hand);
+  font-size: 16px;
+  line-height: 1.2;
+  opacity: 0.85;
+}
+
+.audio-widget__row {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin-top: 0.75rem;
+}
+
+.audio-widget__play {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border: 1px solid #ffffff33;
+  border-radius: 999px;
+  background: var(--accent-gradient);
+  color: #fff;
+  box-shadow: 0 10px 24px -10px color-mix(in srgb, var(--accent) 80%, transparent);
+}
+
+.audio-widget__play .icon {
+  width: 18px;
+  height: 18px;
+}
+
+.audio-widget__play .audio-icon-pause,
+.audio-widget.is-playing .audio-icon-play {
+  display: none;
+}
+
+.audio-widget.is-playing .audio-icon-pause {
+  display: block;
+}
+
+.audio-widget__title {
+  margin: 0;
+  font-family: var(--display);
   font-weight: 600;
 }
 
-.premium-search .pagefind-ui__button {
-  border-radius: 0.75rem;
-  border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
-  background: color-mix(in srgb, var(--accent) 8%, transparent);
-  color: var(--accent);
-  font-weight: 600;
-  transition: all 0.3s ease;
+.audio-widget__meta,
+.audio-widget__hint {
+  margin: 0;
+  font-size: 12.5px;
+  opacity: 0.7;
 }
 
-.premium-search .pagefind-ui__button:hover {
-  background: color-mix(in srgb, var(--accent) 15%, transparent);
-  box-shadow: 0 4px 15px color-mix(in srgb, var(--accent) 15%, transparent);
+.audio-widget__hint {
+  margin-top: 0.75rem;
+}
+
+/* ==========================================================================
+   Lists inside windows
+   ========================================================================== */
+
+.post-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.panel-stack {
+  display: grid;
+  gap: clamp(1.25rem, 3vw, 2rem);
+}
+
+.panel-header {
+  padding: clamp(1.5rem, 4vw, 2.75rem) clamp(1rem, 3vw, 2rem) clamp(1.25rem, 3vw, 2rem);
+  border-bottom: 1px solid var(--line);
+}
+
+/* Keyboard shortcuts mean nothing on touch screens. */
+@media (pointer: coarse) {
+  [data-shortcut-label] {
+    display: none;
+  }
+}
+
+/* ==========================================================================
+   Handwritten voice — the MonkeyProof "spicy" notes
+   ========================================================================== */
+
+.spicy,
+.hand {
+  font-family: var(--hand);
+  font-style: normal;
+  font-weight: 400;
+}
+
+/* Small handwritten label, used where other sites put tracked caps. */
+.hand-label {
+  margin: 0;
+  font-family: var(--hand);
+  font-size: 16px;
+  line-height: 1.2;
+  color: var(--muted);
+}
+
+/* The banana from the logo, wiggling on hover of its link. */
+.banana {
+  display: inline-block;
+  transform-origin: 50% 80%;
+}
+
+a:hover .banana,
+a:focus-visible .banana,
+.banana-wiggle:hover .banana {
+  animation: banana-wiggle 650ms var(--ease-spring) both;
+}
+
+@keyframes banana-wiggle {
+  20% { transform: rotate(-14deg) scale(1.1); }
+  40% { transform: rotate(10deg) scale(1.15); }
+  60% { transform: rotate(-6deg) scale(1.1); }
+  80% { transform: rotate(3deg) scale(1.04); }
 }

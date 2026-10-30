@@ -1,20 +1,21 @@
 import { Resvg } from "@resvg/resvg-js";
 import { type CollectionEntry } from "astro:content";
-import postOgImage from "./og-templates/post";
-import siteOgImage from "./og-templates/site";
+import ogCard from "./og-templates/card";
+import { getPath } from "./getPath";
+import { SITE } from "@/config";
 
-function svgBufferToPngBuffer(svg: string) {
-  const resvg = new Resvg(svg);
-  const pngData = resvg.render();
-  return pngData.asPng();
-}
+const toPng = (svg: string) => new Resvg(svg).render().asPng();
 
 export async function generateOgImageForPost(post: CollectionEntry<"blog">) {
-  const svg = await postOgImage(post);
-  return svgBufferToPngBuffer(svg);
+  const svg = await ogCard({
+    path: `~/posts/${getPath(post.id, post.filePath, false)}.md`,
+    title: post.data.title,
+    footer: `by ${post.data.author}`,
+  });
+  return toPng(svg);
 }
 
 export async function generateOgImageForSite() {
-  const svg = await siteOgImage();
-  return svgBufferToPngBuffer(svg);
+  const svg = await ogCard({ path: "~/go-bananas", title: SITE.title, footer: "Technically accurate chaos." });
+  return toPng(svg);
 }

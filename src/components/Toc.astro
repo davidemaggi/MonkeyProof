@@ -1,0 +1,111 @@
+---
+import type { MarkdownHeading } from "astro";
+
+type Props = { headings: MarkdownHeading[] };
+const { headings } = Astro.props;
+
+const items = headings.filter(
+  h => (h.depth === 2 || h.depth === 3) && !/^table of contents$/i.test(h.text)
+);
+---
+
+{
+  items.length > 1 && (
+    <nav class="toc" aria-labelledby="toc-label" data-toc>
+      <details class="toc__details" open>
+        <summary class="toc__label" id="toc-label">
+          On this page
+        </summary>
+        <ol class="toc__list">
+          {items.map(h => (
+            <li class:list={["toc__item", `toc__item--d${h.depth}`]}>
+              <a href={`#${h.slug}`} data-toc-link={h.slug}>
+                {h.text}
+              </a>
+            </li>
+          ))}
+        </ol>
+      </details>
+    </nav>
+  )
+}
+
+<style>
+  .toc {
+    font-size: 13.5px;
+    line-height: 1.45;
+  }
+
+  .toc__label {
+    margin-bottom: 0.75rem;
+    font-family: var(--hand);
+    font-size: 17px;
+    color: var(--muted);
+    list-style: none;
+    cursor: default;
+  }
+
+  .toc__label::-webkit-details-marker {
+    display: none;
+  }
+
+  .toc__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-left: 1px solid var(--line);
+  }
+
+  .toc__item a {
+    display: block;
+    margin-left: -1px;
+    padding: 0.32rem 0 0.32rem 0.9rem;
+    border-left: 2px solid transparent;
+    color: var(--muted);
+    transition: color 150ms ease, border-color 150ms ease;
+  }
+
+  .toc__item--d3 a {
+    padding-left: 1.7rem;
+    font-size: 13px;
+  }
+
+  .toc__item a:hover {
+    color: var(--window-text);
+  }
+
+  .toc__item a[aria-current="true"] {
+    border-left-color: var(--accent);
+    color: var(--prose-strong);
+    font-weight: 500;
+  }
+
+  /* On narrow screens the contents sit above the article, collapsed. */
+  @media (max-width: 1099px) {
+    .toc {
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: var(--surface-2);
+    }
+
+    .toc__label {
+      margin: 0;
+      cursor: pointer;
+    }
+
+    .toc__label::after {
+      content: "+";
+      float: right;
+      font-size: 14px;
+    }
+
+    .toc__details[open] .toc__label {
+      margin-bottom: 0.75rem;
+    }
+
+    .toc__details[open] .toc__label::after {
+      content: "–";
+    }
+  }
+</style>
