@@ -1,11 +1,9 @@
 ---
 import { getCollection } from "astro:content";
 import type { GetStaticPathsOptions } from "astro";
-import Main from "@/layouts/Main.astro";
 import Layout from "@/layouts/Layout.astro";
-import Header from "@/components/Header.astro";
-import Footer from "@/components/Footer.astro";
-import Card from "@/components/Card.astro";
+import Panel from "@/components/Panel.astro";
+import PostRow from "@/components/PostRow.astro";
 import Pagination from "@/components/Pagination.astro";
 import getUniqueTags from "@/utils/getUniqueTags";
 import getPostsByTag from "@/utils/getPostsByTag";
@@ -19,38 +17,41 @@ export async function getStaticPaths({ paginate }: GetStaticPathsOptions) {
       : Promise.resolve([]),
   ]);
   const posts = [...blogPosts, ...galleryPosts];
-  const tags = getUniqueTags(posts);
 
-  return tags.flatMap(({ tag, tagName }) => {
-    const tagPosts = getPostsByTag(posts, tag);
-
-    return paginate(tagPosts, {
+  return getUniqueTags(posts).flatMap(({ tag, tagName }) =>
+    paginate(getPostsByTag(posts, tag), {
       params: { tag },
       props: { tagName },
       pageSize: SITE.postPerPage,
-    });
-  });
+    })
+  );
 }
 
-const params = Astro.params;
-const { tag } = params;
+const { tag } = Astro.params;
 const { page, tagName } = Astro.props;
 ---
 
-<Layout title={`Tag: ${tagName} | ${SITE.title}`}>
-  <Header />
-  <Main
-    pageTitle={[`Tag:`, `${tagName}`]}
-    titleTransition={tag}
-    pageDesc={`All the articles with the tag "${tagName}".`}
-  >
-    <h1 slot="title" transition:name={tag}>{`Tag:${tag}`}</h1>
-    <ul>
-      {page.data.map(data => <Card {...data} />)}
+<Layout title={`#${tagName} | ${SITE.title}`} description={`All the articles tagged “${tagName}”.`}>
+  <Panel>
+    <header class="panel-header">
+      <h1 class="page-heading" transition:name={`tag-${tag}`}>
+        <span class="tag-heading-hash" aria-hidden="true">#</span>{tagName}
+      </h1>
+      <p class="page-lede">
+        {page.total} {page.total === 1 ? "post" : "posts"} down this particular rabbit hole. <a class="link-arrow" href="/tags/">Other holes</a>
+      </p>
+    </header>
+    <ul class="post-list">
+      {page.data.map(entry => <PostRow entry={entry} headingLevel="h2" />)}
     </ul>
-  </Main>
-
-  <Pagination {page} />
-
-  <Footer noMarginTop={page.lastPage > 1} />
+    <Pagination slot="footer" page={page} />
+  </Panel>
 </Layout>
+
+<style>
+  .tag-heading-hash {
+    margin-right: 0.08em;
+    color: var(--accent-text);
+    font-weight: 400;
+  }
+</style>

@@ -1,0 +1,19 @@
+---
+/**
+ * A solid reading surface floating on the wallpaper. Same material as the
+ * DaveOS windows (solid body, soft lift, faint accent ring) without the chrome.
+ */
+type Props = {
+  class?: string;
+  id?: string;
+  as?: "section" | "article" | "div";
+  "aria-labelledby"?: string;
+};
+
+const { class: className, id, as: Tag = "section", ...rest } = Astro.props;
+---
+
+<Tag class:list={["panel", className]} id={id} {...rest}>
+  <slot />
+  <slot name="footer" />
+</Tag>

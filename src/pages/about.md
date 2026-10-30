@@ -1,6 +1,7 @@
 ---
 layout: ../layouts/AboutLayout.astro
 title: "About"
+description: "Who writes MonkeyProof and why."
 ---
 
 ## Welcome to my digital corner
@@ -45,6 +46,6 @@ Think of it as notes from someone who’s been in the industry long enough to kn
 - And the simplest solution is usually discovered right after shipping the complex one
 
 If you enjoy architecture, backend engineering, and technically accurate nerd chaos, you’re in the right place.
-If you want to connect, don't hesitate to find me on [GitHub](https://github.com/0xdres/), [X](https://x.com/avdyen), or [LinkedIn](https://www.linkedin.com/in/avdyan/). It is always good to meet cool people from the community.
+If you want to connect, don't hesitate to find me on [GitHub](https://github.com/DavideMaggi/), [X](https://x.com/DavideMaggi), or [LinkedIn](https://www.linkedin.com/in/DavideMaggi/). It is always good to meet cool people from the community.
 
 > _"Code is logic, architecture is hope."_ — Me, probably

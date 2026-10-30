@@ -1,0 +1,132 @@
+---
+/**
+ * Lofi player. One shared <audio> lives on window (see introAudioStore), so
+ * playback continues across page navigations. Renders as a menu bar item or
+ * as a home widget; every instance mirrors the same state.
+ */
+import Icon from "@/components/Icon.astro";
+import { SITE } from "@/config";
+
+type Props = { variant?: "menubar" | "widget" };
+const { variant = "menubar" } = Astro.props;
+const { src, label, isStream, duration } = SITE.introAudio;
+---
+
+{
+  SITE.introAudio.enabled &&
+    (variant === "menubar" ? (
+      <button
+        type="button"
+        class="menubar__item audio-control"
+        data-audio-toggle
+        data-src={src}
+        data-label={label}
+        data-stream={String(isStream)}
+        data-duration={duration}
+        aria-label={`Play ${label} radio`}
+        aria-pressed="false"
+      >
+        <span class="audio-control__bars" aria-hidden="true">
+          <span />
+          <span />
+          <span />
+        </span>
+        <span class="audio-control__label">{label}</span>
+      </button>
+    ) : (
+      <section class="widget glass audio-widget" aria-label={`${label} radio`}>
+        <p class="widget__label">Now playing</p>
+        <div class="audio-widget__row">
+          <button
+            type="button"
+            class="audio-widget__play"
+            data-audio-toggle
+            data-src={src}
+            data-label={label}
+            data-stream={String(isStream)}
+            data-duration={duration}
+            aria-label={`Play ${label} radio`}
+            aria-pressed="false"
+          >
+            <Icon name="play" class="audio-icon-play" />
+            <Icon name="pause" class="audio-icon-pause" />
+          </button>
+          <div>
+            <p class="audio-widget__title">{label} radio</p>
+            <p class="audio-widget__meta" data-audio-meta>
+              {isStream ? "Live stream · paused" : "Paused"}
+            </p>
+          </div>
+        </div>
+        <p class="audio-widget__hint">Keeps playing while you read.</p>
+      </section>
+    ))
+}
+
+<script>
+  import {
+    getIntroAudioStore,
+    INTRO_AUDIO_STATE_EVENT,
+    type IntroAudioState,
+  } from "@/utils/introAudioStore";
+
+  const fmt = (secs: number) => {
+    const s = Math.max(0, Math.floor(secs));
+    return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+  };
+
+  const render = (state: IntroAudioState) => {
+    document.querySelectorAll<HTMLElement>("[data-audio-toggle]").forEach(btn => {
+      btn.setAttribute("aria-pressed", String(state.playing));
+      btn.setAttribute(
+        "aria-label",
+        `${state.playing ? "Pause" : "Play"} ${state.label} radio`
+      );
+      btn.closest(".audio-widget")?.classList.toggle("is-playing", state.playing);
+    });
+    document.querySelectorAll<HTMLElement>("[data-audio-meta]").forEach(meta => {
+      meta.textContent = state.isStream
+        ? `Live stream · ${state.playing ? "on air" : "paused"}`
+        : `${fmt(state.currentTime)} / ${fmt(state.duration)}`;
+    });
+  };
+
+  window.addEventListener(INTRO_AUDIO_STATE_EVENT, event => {
+    render((event as CustomEvent<IntroAudioState>).detail);
+  });
+
+  document.addEventListener("click", event => {
+    const btn = (event.target as HTMLElement | null)?.closest<HTMLElement>(
+      "[data-audio-toggle]"
+    );
+    if (!btn) return;
+    const store = getIntroAudioStore({
+      src: btn.dataset.src ?? "",
+      label: btn.dataset.label ?? "LOFI",
+      isStream: btn.dataset.stream === "true",
+      durationHint: Number(btn.dataset.duration ?? "0"),
+    });
+    if (store.audio.paused) {
+      void store.audio.play().catch(() => {
+        /* playback blocked by the browser */
+      });
+    } else {
+      store.audio.pause();
+    }
+  });
+
+  // Re-render freshly swapped markup with the current state.
+  document.addEventListener("astro:page-load", () => {
+    const store = window.__introAudioStore;
+    if (!store) return;
+    render({
+      src: store.src,
+      label: store.label,
+      isStream: store.isStream,
+      playing: !store.audio.paused,
+      hasStarted: store.hasStarted,
+      currentTime: store.audio.currentTime,
+      duration: store.durationHint,
+    });
+  });
+</script>

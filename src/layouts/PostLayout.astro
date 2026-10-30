@@ -1,0 +1,606 @@
+---
+import { Image } from "astro:assets";
+import { render, type CollectionEntry } from "astro:content";
+import Layout from "@/layouts/Layout.astro";
+import Panel from "@/components/Panel.astro";
+import Icon from "@/components/Icon.astro";
+import Banana from "@/components/Banana.astro";
+import Toc from "@/components/Toc.astro";
+import ShareLinks from "@/components/ShareLinks.astro";
+import GalleryEmbed from "@/components/GalleryEmbed.astro";
+import { getPath } from "@/utils/getPath";
+import { slugifyStr } from "@/utils/slugify";
+import { formatDate, readingMinutes } from "@/utils/format";
+import { SITE } from "@/config";
+
+type Props = {
+  post: CollectionEntry<"blog">;
+  posts: CollectionEntry<"blog">[];
+};
+
+const { post, posts } = Astro.props;
+
+const {
+  title,
+  author,
+  description,
+  mainImage,
+  mainImageAlt,
+  mainImageCaption,
+  mainImageCredit,
+  ogImage: initOgImage,
+  canonicalURL,
+  pubDatetime,
+  modDatetime,
+  timezone,
+  tags,
+  hideEditPost,
+} = post.data;
+
+const { Content, headings } = await render(post);
+const minutes = readingMinutes(post.body);
+const coffees = Math.max(1, Math.round(minutes / 6));
+
+// OG image: mainImage, then ogImage, then the generated card, then the site default.
+let ogImageUrl: string | undefined;
+if (typeof mainImage === "string") ogImageUrl = mainImage;
+else if (mainImage?.src) ogImageUrl = mainImage.src;
+else if (typeof initOgImage === "string") ogImageUrl = initOgImage;
+if (!ogImageUrl && SITE.dynamicOgImage) ogImageUrl = `${getPath(post.id, post.filePath)}/index.png`;
+const ogImage = ogImageUrl ? new URL(ogImageUrl, Astro.url.origin).href : undefined;
+
+const index = posts.findIndex(p => p.id === post.id);
+const newer = index > 0 ? posts[index - 1] : null;
+const older = index >= 0 && index < posts.length - 1 ? posts[index + 1] : null;
+
+const editUrl =
+  SITE.editPost.enabled && !hideEditPost ? `${SITE.editPost.url}${post.filePath}` : null;
+const updated = modDatetime && modDatetime > pubDatetime ? modDatetime : null;
+---
+
+<Layout
+  title={`${title} | ${SITE.title}`}
+  {author}
+  {description}
+  {pubDatetime}
+  {modDatetime}
+  {canonicalURL}
+  {ogImage}
+  reading
+>
+  <span class="reading-progress" aria-hidden="true" data-reading-progress></span>
+
+  <a class="post-back link-arrow" href="/posts/">
+    <Icon name="arrow-left" /> Back to the pile
+  </a>
+
+  <Panel as="article" class="post-panel">
+
+    <div class="post" data-pagefind-body>
+      <header class="post__header">
+        <ul class="post__tags" aria-label="Tags" data-pagefind-ignore>
+          {
+            tags.map(tag => (
+              <li>
+                <a class="tag" href={`/tags/${slugifyStr(tag)}/`}>
+                  {tag}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+        <h1 class="post__title" transition:name={`title-${slugifyStr(title)}`}>{title}</h1>
+        <p class="post__lede">{description}</p>
+        <div class="post__byline" data-pagefind-ignore>
+          <img class="post__avatar" src={SITE.avatar.src} alt="" width="36" height="36" />
+          <div>
+            <p class="post__author">{author}</p>
+            <p class="meta">
+              <time datetime={pubDatetime.toISOString()}>{formatDate(pubDatetime, timezone)}</time>
+              {updated && <span> · updated <time datetime={updated.toISOString()}>{formatDate(updated, timezone)}</time></span>}
+              <span> · {minutes} min read, about {coffees} {coffees === 1 ? "coffee" : "coffees"}</span>
+            </p>
+          </div>
+          {
+            editUrl && (
+              <a class="post__edit" href={editUrl} target="_blank" rel="noopener">
+                <Icon name="edit" /> {SITE.editPost.text}
+              </a>
+            )
+          }
+        </div>
+      </header>
+
+      {
+        mainImage && (
+          <figure class="post__cover">
+            {typeof mainImage === "string" ? (
+              <img src={mainImage} alt={mainImageAlt ?? ""} loading="eager" decoding="async" fetchpriority="high" />
+            ) : (
+              <Image
+                src={mainImage}
+                alt={mainImageAlt ?? ""}
+                loading="eager"
+                fetchpriority="high"
+                widths={[720, 1080, 1440, 2000]}
+                sizes="(max-width: 1180px) 100vw, 1080px"
+              />
+            )}
+            {(mainImageCaption || mainImageCredit) && (
+              <figcaption>
+                {mainImageCaption}
+                {mainImageCredit && <span class="post__credit">{mainImageCredit}</span>}
+              </figcaption>
+            )}
+          </figure>
+        )
+      }
+
+      <div class="post__grid">
+        <aside class="post__aside" data-pagefind-ignore>
+          <Toc headings={headings} />
+        </aside>
+        <div class="prose post__body" id="article">
+          <Content components={{ GalleryEmbed }} />
+        </div>
+      </div>
+    </div>
+
+    <footer class="post__footer" data-pagefind-ignore>
+      <p class="post__signoff hand">
+        <Banana size={28} /> Thanks for reading! Now go break something. In staging, please.
+      </p>
+      <ShareLinks title={title} />
+      <nav class="post__nav" aria-label="More posts">
+        {
+          older ? (
+            <a class="post__nav-link" href={getPath(older.id, older.filePath)} rel="prev">
+              <span class="post__nav-dir"><Icon name="arrow-left" /> Previously</span>
+              <span class="post__nav-title">{older.data.title}</span>
+            </a>
+          ) : (
+            <span />
+          )
+        }
+        {
+          newer && (
+            <a class="post__nav-link post__nav-link--next" href={getPath(newer.id, newer.filePath)} rel="next">
+              <span class="post__nav-dir">Up next <Icon name="arrow-right" /></span>
+              <span class="post__nav-title">{newer.data.title}</span>
+            </a>
+          )
+        }
+      </nav>
+    </footer>
+  </Panel>
+
+  <button type="button" class="to-top glass glass-blur" data-to-top aria-label="Back to top">
+    <Icon name="arrow-up" />
+  </button>
+</Layout>
+
+<script>
+  const wide = window.matchMedia("(min-width: 1100px)");
+
+  const initPost = () => {
+    const body = document.querySelector<HTMLElement>("#article");
+    if (!body) return;
+
+    // Heading anchors.
+    body.querySelectorAll<HTMLElement>("h2[id], h3[id], h4[id]").forEach(h => {
+      if (h.querySelector(".heading-anchor")) return;
+      const a = document.createElement("a");
+      a.className = "heading-anchor";
+      a.href = `#${h.id}`;
+      a.setAttribute("aria-label", `Link to “${h.textContent?.trim()}”`);
+      a.textContent = "#";
+      h.append(a);
+    });
+
+    // Contents: always open on wide screens, collapsed on narrow ones.
+    const details = document.querySelector<HTMLDetailsElement>(".toc__details");
+    if (details) {
+      details.open = wide.matches;
+      details.querySelector("summary")?.addEventListener("click", e => {
+        if (wide.matches) e.preventDefault();
+      });
+    }
+
+    // Scroll spy for the contents.
+    const links = new Map<string, HTMLAnchorElement>();
+    document.querySelectorAll<HTMLAnchorElement>("[data-toc-link]").forEach(a => {
+      links.set(a.dataset.tocLink!, a);
+    });
+    if (links.size) {
+      const visible = new Set<string>();
+      const observer = new IntersectionObserver(
+        entries => {
+          entries.forEach(e => (e.isIntersecting ? visible.add(e.target.id) : visible.delete(e.target.id)));
+          const headings = [...links.keys()];
+          const current =
+            headings.find(id => visible.has(id)) ??
+            headings.filter(id => {
+              const el = document.getElementById(id);
+              return el && el.getBoundingClientRect().top < 120;
+            }).pop();
+          links.forEach((a, id) => a.setAttribute("aria-current", String(id === current)));
+        },
+        { rootMargin: "-80px 0px -60% 0px" }
+      );
+      links.forEach((_, id) => {
+        const el = document.getElementById(id);
+        if (el) observer.observe(el);
+      });
+      document.addEventListener("astro:before-swap", () => observer.disconnect(), { once: true });
+    }
+
+    // Reading progress in the title bar + back-to-top visibility.
+    const bar = document.querySelector<HTMLElement>("[data-reading-progress]");
+    const toTop = document.querySelector<HTMLElement>("[data-to-top]");
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        ticking = false;
+        const rect = body.getBoundingClientRect();
+        const total = rect.height - window.innerHeight * 0.6;
+        const progress = Math.min(1, Math.max(0, -rect.top / Math.max(1, total)));
+        bar?.style.setProperty("--progress", progress.toFixed(4));
+        toTop?.toggleAttribute("data-visible", window.scrollY > window.innerHeight * 1.2);
+      });
+    };
+    onScroll();
+    document.addEventListener("scroll", onScroll, { passive: true });
+    document.addEventListener(
+      "astro:before-swap",
+      () => document.removeEventListener("scroll", onScroll),
+      { once: true }
+    );
+  };
+
+  // Copy buttons (code windows) and copy-link, delegated once.
+  document.addEventListener("click", async event => {
+    const target = event.target as HTMLElement;
+
+    const copyCode = target.closest<HTMLButtonElement>("[data-copy-code]");
+    if (copyCode) {
+      const code = copyCode.closest(".code-block")?.querySelector("code");
+      await navigator.clipboard.writeText(code?.innerText ?? "");
+      copyCode.textContent = "Copied";
+      copyCode.toggleAttribute("data-copied", true);
+      setTimeout(() => {
+        copyCode.textContent = "Copy";
+        copyCode.removeAttribute("data-copied");
+      }, 1400);
+      return;
+    }
+
+    const copyLink = target.closest<HTMLButtonElement>("[data-copy-link]");
+    if (copyLink) {
+      await navigator.clipboard.writeText(copyLink.dataset.copyLink ?? location.href);
+      copyLink.toggleAttribute("data-copied", true);
+      copyLink.setAttribute("aria-label", "Link copied");
+      setTimeout(() => {
+        copyLink.removeAttribute("data-copied");
+        copyLink.setAttribute("aria-label", "Copy link");
+      }, 1400);
+      return;
+    }
+
+    if (target.closest("[data-to-top]")) {
+      window.scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    }
+  });
+
+  document.addEventListener("astro:page-load", initPost);
+</script>
+
+<style>
+  .post-back {
+    margin-bottom: 1rem;
+    color: var(--ground-text);
+    font-size: 14px;
+    opacity: 0.85;
+  }
+
+  .post-back:hover {
+    opacity: 1;
+  }
+
+  .post-back :global(.icon) {
+    width: 16px;
+    height: 16px;
+  }
+
+  .post-back:hover :global(.icon) {
+    transform: translateX(-3px);
+  }
+
+  .post-panel {
+    max-width: var(--content-max);
+    margin-inline: auto;
+  }
+
+  .reading-progress {
+    position: fixed;
+    top: var(--menubar-h);
+    left: 0;
+    right: 0;
+    z-index: var(--z-menubar);
+    height: 2px;
+    background: var(--accent-gradient);
+    transform: scaleX(var(--progress, 0));
+    transform-origin: left;
+    pointer-events: none;
+  }
+
+  .post {
+    padding: clamp(1.5rem, 5vw, 3.5rem) clamp(1rem, 5vw, 3.5rem) 0;
+  }
+
+  .post__header {
+    max-width: 52rem;
+  }
+
+  .post__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 0 0 1.25rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  .post__title {
+    margin: 0;
+    font-family: var(--display);
+    font-size: clamp(2.1rem, 5.2vw, 3.6rem);
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 1.02;
+    color: var(--prose-strong);
+    text-wrap: balance;
+  }
+
+  .post__lede {
+    max-width: 62ch;
+    margin: 1.25rem 0 0;
+    color: var(--muted);
+    font-size: clamp(1.08rem, 1.6vw, 1.25rem);
+    line-height: 1.55;
+    text-wrap: pretty;
+  }
+
+  .post__byline {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 0.85rem;
+    margin-top: 1.75rem;
+  }
+
+  .post__byline p {
+    margin: 0;
+  }
+
+  .post__avatar {
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    object-fit: cover;
+  }
+
+  .post__author {
+    font-weight: 600;
+    color: var(--prose-strong);
+    font-size: 14.5px;
+    line-height: 1.3;
+  }
+
+  .post__edit {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-left: auto;
+    font-size: 13px;
+    color: var(--accent-text);
+  }
+
+  .post__cover {
+    margin: clamp(1.75rem, 4vw, 2.75rem) 0 0;
+  }
+
+  .post__cover :global(img) {
+    width: 100%;
+    max-height: 72vh;
+    object-fit: cover;
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    background: var(--surface-2);
+  }
+
+  .post__cover figcaption {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.25rem 1rem;
+    margin-top: 0.75rem;
+    color: var(--muted);
+    font-family: var(--hand);
+    font-size: 1.05rem;
+  }
+
+  .post__credit {
+    font-family: var(--sans);
+  }
+
+  .post__credit {
+    font-size: 12.5px;
+  }
+
+  .post__grid {
+    display: grid;
+    gap: 2rem;
+    margin-top: clamp(2rem, 4vw, 3rem);
+  }
+
+  .post__body {
+    min-width: 0;
+  }
+
+  .post__body > :first-child {
+    margin-top: 0;
+  }
+
+  @media (min-width: 1100px) {
+    .post__grid {
+      grid-template-columns: minmax(0, var(--measure)) 220px;
+      justify-content: space-between;
+      gap: 3rem;
+    }
+
+    .post__aside {
+      order: 2;
+    }
+
+    .post__aside :global(.toc) {
+      position: sticky;
+      top: calc(var(--menubar-h) + 1.5rem);
+      max-height: calc(100dvh - var(--menubar-h) - 3rem);
+      overflow-y: auto;
+    }
+  }
+
+  /* Focus mode: one centred column, nothing else. */
+  :global([data-focus="true"]) .post__aside {
+    display: none;
+  }
+
+  :global([data-focus="true"]) .post__grid {
+    grid-template-columns: minmax(0, 72ch);
+    justify-content: center;
+  }
+
+  :global([data-focus="true"]) .post__header,
+  :global([data-focus="true"]) .post__cover {
+    max-width: 72ch;
+    margin-inline: auto;
+  }
+
+  :global([data-focus="true"]) .post__body {
+    font-size: 1.125rem;
+  }
+
+  .post__footer {
+    display: grid;
+    gap: 2rem;
+    margin-top: clamp(3rem, 6vw, 4.5rem);
+    padding: 2rem clamp(1rem, 5vw, 3.5rem) clamp(1.5rem, 4vw, 2.5rem);
+    border-top: 1px solid var(--line);
+  }
+
+  .post__nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+
+  .post__nav-link {
+    display: grid;
+    gap: 0.4rem;
+    padding: 1rem 1.15rem;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: var(--surface-2);
+    transition: border-color 160ms ease, transform 180ms var(--ease-out);
+  }
+
+  .post__nav-link:hover,
+  .post__nav-link:focus-visible {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  }
+
+  .post__nav-link--next {
+    grid-column: 2;
+    text-align: right;
+  }
+
+  .post__nav-link--next .post__nav-dir {
+    justify-content: flex-end;
+  }
+
+  .post__nav-dir {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-family: var(--hand);
+    font-size: 16px;
+    color: var(--muted);
+  }
+
+  .post__signoff {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0;
+    font-size: clamp(1.15rem, 2vw, 1.4rem);
+    color: var(--prose-strong);
+  }
+
+  .post__signoff:hover :global(.banana) {
+    animation: banana-wiggle 650ms var(--ease-spring) both;
+  }
+
+  .post__nav-title {
+    font-family: var(--display);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.3;
+    color: var(--prose-strong);
+  }
+
+  .to-top {
+    position: fixed;
+    right: max(1rem, env(safe-area-inset-right));
+    bottom: max(1rem, env(safe-area-inset-bottom));
+    z-index: var(--z-menubar);
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(8px);
+    transition: opacity 200ms ease, transform 200ms var(--ease-out);
+  }
+
+  .to-top[data-visible] {
+    opacity: 1;
+    pointer-events: auto;
+    transform: none;
+  }
+
+  .to-top :global(.icon) {
+    width: 18px;
+    height: 18px;
+  }
+
+  @media (max-width: 640px) {
+    .post__nav {
+      grid-template-columns: 1fr;
+    }
+
+    .post__nav-link--next {
+      grid-column: auto;
+    }
+
+    .post__edit {
+      margin-left: 0;
+    }
+  }
+</style>

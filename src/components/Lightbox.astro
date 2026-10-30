@@ -1,0 +1,154 @@
+---
+/**
+ * One image viewer for the page. Any <button data-lightbox="group"
+ * data-full="url" data-alt="…"> opens it; ←/→ move within the group.
+ */
+import Icon from "@/components/Icon.astro";
+---
+
+<dialog class="lightbox" aria-label="Image viewer" data-lightbox-dialog>
+  <div class="lightbox__bar">
+    <span class="lightbox__counter meta" data-lightbox-counter></span>
+    <button type="button" class="lightbox__btn" data-lightbox-close aria-label="Close viewer">
+      <Icon name="close" />
+    </button>
+  </div>
+  <div class="lightbox__stage">
+    <button type="button" class="lightbox__btn lightbox__nav" data-lightbox-step="-1" aria-label="Previous image">
+      <Icon name="chevron-left" />
+    </button>
+    <figure class="lightbox__figure">
+      <img data-lightbox-img alt="" hidden />
+      <figcaption data-lightbox-caption></figcaption>
+    </figure>
+    <button type="button" class="lightbox__btn lightbox__nav" data-lightbox-step="1" aria-label="Next image">
+      <Icon name="chevron-right" />
+    </button>
+  </div>
+</dialog>
+
+<script>
+  let group: HTMLButtonElement[] = [];
+  let index = 0;
+
+  const dialog = () => document.querySelector<HTMLDialogElement>("[data-lightbox-dialog]");
+
+  const show = (i: number) => {
+    const dlg = dialog();
+    if (!dlg || !group.length) return;
+    index = (i + group.length) % group.length;
+    const btn = group[index];
+    const img = dlg.querySelector<HTMLImageElement>("[data-lightbox-img]")!;
+    img.src = btn.dataset.full ?? "";
+    img.hidden = false;
+    img.alt = btn.dataset.alt ?? "";
+    dlg.querySelector("[data-lightbox-caption]")!.textContent = btn.dataset.alt ?? "";
+    dlg.querySelector("[data-lightbox-counter]")!.textContent = `${index + 1} / ${group.length}`;
+    dlg.querySelectorAll<HTMLElement>(".lightbox__nav").forEach(n => (n.hidden = group.length < 2));
+    if (!dlg.open) dlg.showModal();
+  };
+
+  document.addEventListener("click", event => {
+    const target = event.target as HTMLElement;
+    const trigger = target.closest<HTMLButtonElement>("[data-lightbox]");
+    if (trigger) {
+      group = Array.from(
+        document.querySelectorAll<HTMLButtonElement>(`[data-lightbox="${trigger.dataset.lightbox}"]`)
+      );
+      show(group.indexOf(trigger));
+      return;
+    }
+    const dlg = dialog();
+    if (!dlg?.open) return;
+    const step = target.closest<HTMLElement>("[data-lightbox-step]");
+    if (step) return show(index + Number(step.dataset.lightboxStep));
+    if (target.closest("[data-lightbox-close]") || target === dlg || target.classList.contains("lightbox__stage")) {
+      dlg.close();
+    }
+  });
+
+  document.addEventListener("keydown", event => {
+    if (!dialog()?.open) return;
+    if (event.key === "ArrowLeft") show(index - 1);
+    if (event.key === "ArrowRight") show(index + 1);
+  });
+</script>
+
+<style is:global>
+  .lightbox {
+    width: 100vw;
+    max-width: none;
+    height: 100dvh;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: #05060bf0;
+    color: #eef0f8;
+  }
+
+  .lightbox::backdrop {
+    background: #05060b99;
+    backdrop-filter: blur(8px);
+  }
+
+  .lightbox[open] {
+    display: grid;
+    grid-template-rows: auto 1fr;
+  }
+
+  .lightbox__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+  }
+
+  .lightbox__stage {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 0;
+    padding: 0 0.5rem 1rem;
+  }
+
+  .lightbox__figure {
+    display: grid;
+    justify-items: center;
+    gap: 0.75rem;
+    min-height: 0;
+    margin: 0;
+  }
+
+  .lightbox__figure img {
+    max-width: 100%;
+    max-height: calc(100dvh - 9rem);
+    object-fit: contain;
+    border-radius: 10px;
+  }
+
+  .lightbox__figure figcaption {
+    font-size: 0.9rem;
+    opacity: 0.8;
+  }
+
+  .lightbox__btn {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 1px solid #ffffff26;
+    border-radius: 12px;
+    background: #ffffff12;
+  }
+
+  .lightbox__btn:hover {
+    background: #ffffff24;
+  }
+
+  .lightbox__btn .icon {
+    width: 20px;
+    height: 20px;
+  }
+</style>

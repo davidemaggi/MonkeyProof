@@ -1,0 +1,540 @@
+---
+/**
+ * Menu bar in the DaveOS style. Left: the DaveOS mark (back to
+ * davidemaggi.dev), the blog name, navigation. Right: lofi, search, control center, clock.
+ */
+import Icon from "@/components/Icon.astro";
+import DaveOsLogo from "@/components/DaveOsLogo.astro";
+import AudioControl from "@/components/AudioControl.astro";
+import Banana from "@/components/Banana.astro";
+import { SITE, WALLPAPERS } from "@/config";
+import { NAV_LINKS } from "@/constants";
+
+const path = Astro.url.pathname;
+const isActive = (href: string) => path === href || path.startsWith(href);
+
+const WALLPAPER_LABELS: Record<(typeof WALLPAPERS)[number], string> = {
+  aurora: "Aurora",
+  darkside: "Dark Side",
+  graphite: "Graphite",
+  cobalt: "Cobalt",
+  ember: "Ember",
+  prism: "Prism",
+  pearl: "Pearl",
+};
+---
+
+<header class="menubar">
+  <div class="menubar__left">
+    <a
+      class="menubar__item menubar__os"
+      href={SITE.daveos.url}
+      data-daveos
+      aria-label={`Back to ${SITE.daveos.label} (davidemaggi.dev)`}
+      title={`Back to ${SITE.daveos.label}`}
+    >
+      <DaveOsLogo />
+    </a>
+    <a class="menubar__item menubar__app" href="/" aria-label={`${SITE.title} home`}>
+      Monkey<Banana size={15} />Proof
+    </a>
+    <nav class="menubar__nav" aria-label="Main">
+      {
+        NAV_LINKS.map(link => (
+          <a
+            class="menubar__item"
+            href={link.href}
+            aria-current={isActive(link.href) ? "page" : undefined}
+          >
+            {link.label}
+          </a>
+        ))
+      }
+    </nav>
+  </div>
+
+  <div class="menubar__right">
+    <AudioControl />
+    <button type="button" class="menubar__item menubar__search" data-open-search>
+      <Icon name="search" />
+      <span class="menubar__search-label">Search</span>
+      <kbd class="menubar__kbd" data-shortcut-label>⌘K</kbd>
+    </button>
+    <button
+      type="button"
+      class="menubar__item menubar__icon-btn"
+      popovertarget="control-center"
+      aria-label="Appearance"
+      title="Appearance"
+    >
+      <Icon name="adjustments" />
+    </button>
+    <span class="menubar__clock" data-clock aria-hidden="true"></span>
+    <button
+      type="button"
+      class="menubar__item menubar__icon-btn menubar__menu-btn"
+      popovertarget="mobile-menu"
+      aria-label="Open menu"
+    >
+      <Icon name="menu" />
+    </button>
+  </div>
+</header>
+
+<!-- Control center: appearance, same presets as DaveOS. -->
+<div id="control-center" class="popover glass-blur control-center" popover>
+  <p class="popover__label" id="cc-theme">Lights on or off?</p>
+  <div class="segmented" role="group" aria-labelledby="cc-theme">
+    <button type="button" data-set-theme="dark" aria-pressed="false">
+      <Icon name="moon" /> Dark
+    </button>
+    <button type="button" data-set-theme="light" aria-pressed="false">
+      <Icon name="sun" /> Light
+    </button>
+  </div>
+
+  <p class="popover__label" id="cc-wallpaper">Pick a wallpaper</p>
+  <div class="swatches" role="group" aria-labelledby="cc-wallpaper">
+    {
+      WALLPAPERS.map(wp => (
+        <button
+          type="button"
+          class={`swatch swatch--${wp}`}
+          data-set-wallpaper={wp}
+          aria-pressed="false"
+          aria-label={WALLPAPER_LABELS[wp]}
+          title={WALLPAPER_LABELS[wp]}
+        />
+      ))
+    }
+  </div>
+
+  <button type="button" class="cc-toggle" data-focus-toggle aria-pressed="false">
+    <span class="cc-toggle__icon"><Icon name="book" /></span>
+    <span>
+      <span class="cc-toggle__title">Focus mode</span>
+      <span class="cc-toggle__hint">Fewer blobs, more words</span>
+    </span>
+    <span class="cc-toggle__switch" aria-hidden="true"></span>
+  </button>
+
+  <p class="popover__foot">Shared with <a href={SITE.daveos.url} data-daveos>{SITE.daveos.label}</a>.</p>
+</div>
+
+<!-- Mobile menu -->
+<nav id="mobile-menu" class="popover glass-blur mobile-menu" popover aria-label="Main">
+  <ul>
+    <li>
+      <a href="/" aria-current={path === "/" ? "page" : undefined}>
+        <Icon name="arrow-right" /> Home
+      </a>
+    </li>
+    {
+      NAV_LINKS.map(link => (
+        <li>
+          <a href={link.href} aria-current={isActive(link.href) ? "page" : undefined}>
+            <Icon name={link.icon} /> {link.label}
+          </a>
+        </li>
+      ))
+    }
+    <li>
+      <a href="/rss.xml"><Icon name="rss" /> RSS feed</a>
+    </li>
+  </ul>
+  <a class="mobile-menu__daveos" href={SITE.daveos.url} data-daveos>
+    <DaveOsLogo /> Back to {SITE.daveos.label}
+    <Icon name="arrow-up-right" />
+  </a>
+</nav>
+
+<style is:global>
+  .menubar {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: var(--z-menubar);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    height: var(--menubar-h);
+    padding: 0 max(0.5rem, env(safe-area-inset-left)) 0 max(0.5rem, env(safe-area-inset-left));
+    border-bottom: 1px solid var(--glass-border);
+    background: color-mix(in srgb, var(--wp-base) 45%, transparent);
+    color: var(--ground-text);
+    backdrop-filter: blur(16px) saturate(170%);
+    -webkit-backdrop-filter: blur(16px) saturate(170%);
+    font-size: 13px;
+    transition: background 240ms ease;
+  }
+
+  [data-scrolled] .menubar {
+    background: color-mix(in srgb, var(--wp-base) 88%, transparent);
+  }
+
+  .menubar__left,
+  .menubar__right,
+  .menubar__nav {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  .menubar__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    height: 24px;
+    padding: 0 0.55rem;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: inherit;
+    white-space: nowrap;
+    transition: background 120ms ease, opacity 120ms ease;
+  }
+
+  .menubar__item:hover,
+  .menubar__item[aria-expanded="true"] {
+    background: color-mix(in srgb, var(--ground-text) 14%, transparent);
+  }
+
+  .menubar__item .icon {
+    width: 15px;
+    height: 15px;
+  }
+
+  .menubar__os .icon {
+    width: 17px;
+    height: 17px;
+  }
+
+  .menubar__app {
+    gap: 1px;
+    font-family: var(--display);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .menubar__nav .menubar__item {
+    opacity: 0.8;
+  }
+
+  .menubar__nav .menubar__item:hover {
+    opacity: 1;
+  }
+
+  .menubar__nav .menubar__item[aria-current="page"] {
+    opacity: 1;
+    background: color-mix(in srgb, var(--ground-text) 12%, transparent);
+  }
+
+  .menubar__kbd {
+    padding: 0 0.3rem;
+    border: 1px solid color-mix(in srgb, var(--ground-text) 25%, transparent);
+    border-radius: 5px;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    opacity: 0.75;
+  }
+
+  .menubar__clock {
+    min-width: 9.5em;
+    padding: 0 0.5rem;
+    font-size: 12.5px;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    white-space: pre;
+  }
+
+  .menubar__menu-btn {
+    display: none;
+  }
+
+  @media (max-width: 860px) {
+    .menubar__nav,
+    .menubar__clock,
+    .menubar__search-label,
+    .menubar__kbd {
+      display: none;
+    }
+
+    .menubar__menu-btn {
+      display: inline-flex;
+    }
+
+    .menubar__item {
+      height: 28px;
+      min-width: 32px;
+      justify-content: center;
+    }
+  }
+
+  /* ---------- Popovers ---------- */
+
+  .popover {
+    position: fixed;
+    inset: calc(var(--menubar-h) + 6px) 0.5rem auto auto;
+    width: min(320px, calc(100vw - 1rem));
+    margin: 0;
+    padding: 0.9rem;
+    border: 1px solid var(--glass-border);
+    border-radius: 22px;
+    background: color-mix(in srgb, var(--window-bg) 96%, transparent);
+    color: var(--window-text);
+    box-shadow: inset 0 1px 0 var(--glass-highlight), 0 24px 60px -18px #000000b3;
+    backdrop-filter: blur(28px) saturate(180%);
+    -webkit-backdrop-filter: blur(28px) saturate(180%);
+    transform-origin: top right;
+  }
+
+  .popover:popover-open {
+    animation: popover-in 160ms var(--ease-out);
+  }
+
+  @keyframes popover-in {
+    from {
+      opacity: 0;
+      transform: translateY(-6px) scale(0.97);
+    }
+  }
+
+  .popover__label {
+    margin: 0 0 0.5rem;
+    font-family: var(--hand);
+    font-size: 16px;
+    color: var(--muted);
+  }
+
+  .popover__label:not(:first-child) {
+    margin-top: 1rem;
+  }
+
+  .popover__foot {
+    margin: 0.9rem 0 0;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .popover__foot a {
+    color: var(--accent-text);
+  }
+
+  .segmented {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+    padding: 4px;
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--window-text) 7%, transparent);
+  }
+
+  .segmented button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    min-height: 34px;
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+  }
+
+  .segmented button[aria-pressed="true"] {
+    background: var(--window-bg);
+    color: var(--window-text);
+    box-shadow: 0 1px 2px #0000004d, 0 0 0 1px var(--window-border);
+  }
+
+  .segmented .icon {
+    width: 15px;
+    height: 15px;
+  }
+
+  .swatches {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+  }
+
+  .swatch {
+    aspect-ratio: 1;
+    min-height: 32px;
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    transition: transform 160ms var(--ease-out), box-shadow 160ms ease;
+  }
+
+  .swatch:hover {
+    transform: translateY(-2px);
+  }
+
+  .swatch[aria-pressed="true"] {
+    box-shadow: 0 0 0 2px var(--window-bg), 0 0 0 4px var(--accent-2);
+  }
+
+  .swatch--aurora { background: radial-gradient(circle at 20% 20%, #6d4aff, transparent 60%), radial-gradient(circle at 85% 30%, #00c2ff, transparent 55%), radial-gradient(circle at 50% 100%, #ff3d9a, transparent 60%), #06070d; }
+  .swatch--darkside { background: linear-gradient(-28deg, transparent 46%, #fff 49.5%, #fff 50.5%, transparent 54%), linear-gradient(-28deg, transparent 40%, #ef444499 49%, #ef444499 51%, transparent 60%), radial-gradient(circle at 20% 20%, #7f1d1d, transparent 60%), #070102; }
+  .swatch--graphite { background: radial-gradient(circle at 25% 25%, #3a3f52, transparent 60%), radial-gradient(circle at 80% 80%, #4b5168, transparent 60%), #08090d; }
+  .swatch--cobalt { background: radial-gradient(circle at 20% 20%, #1d4ed8, transparent 60%), radial-gradient(circle at 85% 70%, #22d3ee, transparent 55%), #020615; }
+  .swatch--ember { background: radial-gradient(circle at 20% 25%, #ff3b1f, transparent 60%), radial-gradient(circle at 80% 70%, #f59e0b, transparent 55%), #0c0403; }
+  .swatch--prism { background: radial-gradient(circle at 20% 20%, #ff4d6d, transparent 55%), radial-gradient(circle at 85% 30%, #b46cff, transparent 55%), radial-gradient(circle at 50% 100%, #4cc9f0, transparent 60%), #07050e; }
+  .swatch--pearl { background: radial-gradient(circle at 20% 20%, #c4b5fd, transparent 60%), radial-gradient(circle at 85% 70%, #a5e4fc, transparent 55%), radial-gradient(circle at 50% 100%, #fbcfe8, transparent 60%), #f4f2fb; }
+
+  .cc-toggle {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 0.7rem;
+    width: 100%;
+    margin-top: 1rem;
+    padding: 0.6rem;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--window-text) 4%, transparent);
+    text-align: left;
+  }
+
+  .cc-toggle__icon {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    background: color-mix(in srgb, var(--accent) 18%, transparent);
+    color: var(--accent-text);
+  }
+
+  .cc-toggle__title {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .cc-toggle__hint {
+    display: block;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .cc-toggle__switch {
+    position: relative;
+    width: 34px;
+    height: 20px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--window-text) 18%, transparent);
+    transition: background 180ms ease;
+  }
+
+  .cc-toggle__switch::after {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    border-radius: 999px;
+    background: #fff;
+    box-shadow: 0 1px 2px #0006;
+    transition: transform 180ms var(--ease-out);
+  }
+
+  .cc-toggle[aria-pressed="true"] .cc-toggle__switch {
+    background: var(--accent);
+  }
+
+  .cc-toggle[aria-pressed="true"] .cc-toggle__switch::after {
+    transform: translateX(14px);
+  }
+
+  .mobile-menu ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .mobile-menu a {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 44px;
+    padding: 0 0.6rem;
+    border-radius: 10px;
+    font-weight: 500;
+  }
+
+  .mobile-menu a .icon {
+    width: 18px;
+    height: 18px;
+    color: var(--muted);
+  }
+
+  .mobile-menu a:hover,
+  .mobile-menu a[aria-current="page"] {
+    background: color-mix(in srgb, var(--accent) 16%, transparent);
+  }
+
+  .mobile-menu__daveos {
+    margin-top: 0.5rem;
+    border-top: 1px solid var(--line);
+    border-radius: 0 0 10px 10px !important;
+    padding-top: 0.5rem !important;
+  }
+
+  .mobile-menu__daveos .icon:last-child {
+    margin-left: auto;
+  }
+
+  /* ---------- Lofi in the menu bar ---------- */
+
+  .audio-control__label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+  }
+
+  .audio-control__bars {
+    display: inline-flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 11px;
+  }
+
+  .audio-control__bars span {
+    width: 2px;
+    height: 4px;
+    border-radius: 1px;
+    background: currentColor;
+    opacity: 0.7;
+  }
+
+  .audio-control[aria-pressed="true"] .audio-control__bars span {
+    background: var(--accent-2);
+    opacity: 1;
+    animation: eq 900ms ease-in-out infinite alternate;
+  }
+
+  .audio-control[aria-pressed="true"] .audio-control__bars span:nth-child(2) {
+    animation-delay: -300ms;
+  }
+
+  .audio-control[aria-pressed="true"] .audio-control__bars span:nth-child(3) {
+    animation-delay: -600ms;
+  }
+
+  @keyframes eq {
+    from { height: 3px; }
+    to { height: 11px; }
+  }
+
+  @media (max-width: 860px) {
+    .audio-control__label {
+      display: none;
+    }
+  }
+</style>

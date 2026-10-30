@@ -3,7 +3,7 @@ title: "Do You Really Need to Master Kubernetes for DevOps?"
 description: "A practical guide to prioritizing DevOps skills: why cloud, CI/CD, and infrastructure as code matter more than deep Kubernetes expertise for most roles."
 pubDatetime: 2026-04-09T22:36:00Z
 featured: false
-draft;: false
+draft: false
 tags:
   - devops
   - kubernetes
@@ -19,10 +19,6 @@ mainImageCredit: MonkeyProof internal artwork
 ## TL;DR
 
 You don't need to master Kubernetes to land your first DevOps job. Focus on cloud fundamentals, CI/CD, and infrastructure as code. Learn just enough Kubernetes to understand the basics, unless you're aiming for a specialized platform or admin role. If you want to stand out, build small projects that showcase your skills and document your learning journey.
-
----
-
-## Table of contents
 
 ---
 
