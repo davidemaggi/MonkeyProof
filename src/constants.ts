@@ -37,6 +37,12 @@ export const SOCIALS: Social[] = [
 
 export const SHARE_LINKS: Social[] = [
   {
+    name: "LinkedIn",
+    href: "https://www.linkedin.com/sharing/share-offsite/?url=",
+    linkTitle: "Share on LinkedIn",
+    icon: "linkedin",
+  },
+  {
     name: "WhatsApp",
     href: "https://wa.me/?text=",
     linkTitle: "Share via WhatsApp",
