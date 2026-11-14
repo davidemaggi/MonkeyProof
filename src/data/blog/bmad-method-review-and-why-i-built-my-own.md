@@ -25,7 +25,7 @@ BMAD (Breakthrough Method for Agile AI-Driven Development) is an open source, MI
 
 Every few months the AI coding world produces a new Method™ that promises to stop your agent from vibe-coding a distributed monolith at 2 a.m. Most of them are a prompt with a logo. BMAD is not one of those: it has a real community, real docs at [docs.bmad-method.org](https://docs.bmad-method.org/), a public repo, and a clear opinion about how AI-assisted delivery should work.
 
-I came to it with a specific problem. At work I was (and still am) on a large platform in the packaging and food & beverage world, in development for about three years. The AI tools were good at writing code. They were terrible at knowing *which* code to write, because the knowledge needed to answer that lived in people's heads, in old tickets, and in a wiki last updated during a previous geological era.
+I came to it with a specific problem. At work I was (and still am) on a large platform in the packaging and food & beverage world, in development for about three years. The AI tools were good at writing code. They were terrible at knowing *which* code to write, because on any platform of that size, a good chunk of the knowledge needed to answer that lives in people's heads and in old tickets, not in the code.
 
 So the question was: can BMAD be the thing that gives agents the context they lack? Spoiler from the title: not for that project. But it deserves a fair hearing first, because for a lot of teams it is a very good answer.
 
@@ -163,7 +163,7 @@ The pattern I keep seeing: the tools differ in *how much process* they impose, b
 
 ## The Project Where I Said No
 
-Back to the platform. Three years of development, a .NET backend and React micro-frontends, split into many domains. Each domain has its own crowd of microservices and micro-frontends, and on top of that sits a generous layer of shared "common" microservices that everybody depends on and nobody fully remembers. Add the classic symptoms: tribal knowledge, docs that described the system as it was planned in year one, and a new-joiner onboarding that consisted mostly of "ask the people who were here at the beginning".
+Back to the platform. Three years of development, a .NET backend and React micro-frontends, split into many domains. Each domain has its own set of microservices and micro-frontends, and on top of that sits a layer of shared "common" microservices used across domains. Nothing unusual for a system of that size and age: it's simply a lot to hold in your head, and much of the reasoning behind it lives with the people who made the decisions rather than in the repository. Great for coffee-machine conversations, less great for an AI agent that can't join them.
 
 I gave BMAD v6 two jobs. First, document the existing platform with `bmad-document-project`, so the agents would have something to stand on. Then, run a real feature through the planning flow: PRD, architecture, stories.
 
@@ -199,7 +199,7 @@ If that last point sounds familiar, it's because BMAD's v7 project context lands
 
 ### Why It Works for "Any Project in the Same Situation"
 
-None of the framework is specific to our domain. The skeleton (what kinds of knowledge to capture, how to structure it, how skills consume it, how it stays true) is reusable for any large platform with years of history. The content is project-specific, the shape isn't. That's the part I'd hand to another team starting from the same mess.
+None of the framework is specific to our domain. The skeleton (what kinds of knowledge to capture, how to structure it, how skills consume it, how it stays true) is reusable for any large platform with years of history. The content is project-specific, the shape isn't. That's the part I'd hand to another team in the same situation.
 
 ### What It Gives Us Today
 
@@ -216,7 +216,7 @@ The agents didn't get smarter. They got informed. *Turns out the secret ingredie
 - **Pick the method for the hard part of your project.** If the hard part is deciding what to build, BMAD is a strong choice. If the hard part is understanding what you already built, invest in knowledge first.
 - **Generated documentation of existing code is mostly noise.** BMAD learned this too. Agents read source better than summaries of source. Capture what the code *can't* tell you.
 - **Rationale is the scarcest resource.** Why a decision was made, and what was rejected, is the knowledge that prevents agents (and new humans) from re-proposing the thing you abandoned two years ago.
-- **Knowledge needs owners and pruning.** A knowledge base that only grows becomes the wiki from the previous geological era.
+- **Knowledge needs owners and pruning.** A knowledge base that only grows ends up as the kind of wiki nobody trusts (we've all met one).
 - **Methods are composable.** Nothing stops you from running BMAD's planning paths on top of your own knowledge layer. The knowledge layer is the part that's hard to get from a package.
 
 ---
