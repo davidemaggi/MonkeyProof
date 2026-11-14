@@ -1,3 +1,13 @@
+## [1.3.0](https://github.com/davidemaggi/MonkeyProof/compare/v1.2.0...v1.3.0) (2026-11-14)
+
+### Features
+
+* **share:** add LinkedIn to the post share buttons ([6836491](https://github.com/davidemaggi/MonkeyProof/commit/683649149fd71dc03035b38a5df018a3b530a574))
+
+### Bug Fixes
+
+* **blog:** tone down project-specific jokes in the BMAD post ([a2670c2](https://github.com/davidemaggi/MonkeyProof/commit/a2670c2c192a0787d9576254fd8e67dde0a6e245))
+
 ## [1.2.0](https://github.com/davidemaggi/MonkeyProof/compare/v1.1.0...v1.2.0) (2026-11-14)
 
 ### Features
