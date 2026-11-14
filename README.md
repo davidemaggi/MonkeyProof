@@ -89,7 +89,7 @@ description: "Why cloud, CI/CD, and IaC matter more than deep Kubernetes for mos
 pubDatetime: 2026-04-09T22:36:00Z
 tags: [devops, kubernetes]
 draft: true
-mainImage: ../../assets/images/choice.png
+mainImage: ../../assets/images/choice.webp
 mainImageAlt: A DevOps engineer choosing between technology paths
 mainImageCaption: Not every DevOps journey starts with Kubernetes.
 ---
