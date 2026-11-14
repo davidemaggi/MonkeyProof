@@ -1,3 +1,13 @@
+## [1.2.0](https://github.com/davidemaggi/MonkeyProof/compare/v1.1.0...v1.2.0) (2026-11-14)
+
+### Features
+
+* **blog:** add BMAD Method review and knowledge-first framework post ([8803d09](https://github.com/davidemaggi/MonkeyProof/commit/8803d09f3172b8f991d59fa1b577bc49f561d590))
+
+### Performance Improvements
+
+* **images:** convert article artwork from PNG to WebP ([13689c5](https://github.com/davidemaggi/MonkeyProof/commit/13689c54ca351f0039abeec69d8544b6f6cf5ff5))
+
 ## [1.1.0](https://github.com/davidemaggi/MonkeyProof/compare/v1.0.3...v1.1.0) (2026-10-30)
 
 ### Features
