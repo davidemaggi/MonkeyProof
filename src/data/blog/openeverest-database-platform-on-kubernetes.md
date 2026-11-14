@@ -11,7 +11,7 @@ tags:
   - dbaas
 featured: false
 draft: false
-mainImage: ../../assets/images/everest.png
+mainImage: ../../assets/images/everest.webp
 mainImageAlt: "A cartoon monkey orchestra conductor leads three database musicians: MongoDB playing saxophone, PostgreSQL playing violin, and MySQL playing piano, each reading sheet music labeled orchestration, backup, and restore."
 mainImageCaption: Three databases, one conductor, zero tolerance for out-of-tune backups.
 mainImageCredit: MonkeyProof internal artwork
@@ -90,7 +90,7 @@ The team picks OpenEverest to standardize DB operations across clusters in AWS a
 
 <figure>
   <img
-    src="/images/openeverest-bananaRama-workflow.png"
+    src="/images/openeverest-bananaRama-workflow.webp"
     alt="Music-sheet style flow diagram showing BananaRama using OpenEverest to provision PostgreSQL, schedule backups, enable PITR, and recover after a bad deployment."
   />
   <figcaption class="text-center">

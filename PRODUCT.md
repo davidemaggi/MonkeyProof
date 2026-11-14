@@ -46,7 +46,7 @@ MonkeyProof (monkeyproof.dev) is Davide Maggi's personal technical blog: softwar
 ## Evidence on Hand
 
 - Posts: `src/data/blog/*.md` (3 posts), About: `src/pages/about.md`.
-- Artwork: `src/assets/images/` (choice.png, everest.png, comic.webp), `public/images/` (avatar, diagrams).
+- Artwork: `src/assets/images/` (choice.webp, everest.webp, comic.webp), `public/images/` (avatar, diagrams).
 - Logo: `src/assets/logo/monkeyproof.svg`; OG fallback `public/monkeyproof-og.png`.
 - No testimonials, metrics, or audience numbers exist; do not invent them.
 
