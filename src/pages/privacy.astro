@@ -1,0 +1,139 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Panel from "@/components/Panel.astro";
+import { SITE } from "@/config";
+
+const CONTACT = "davide@monkeyproof.dev";
+const UPDATED = new Date("2026-11-22");
+const updatedLabel = UPDATED.toLocaleDateString("en-GB", {
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+});
+const audioOn = SITE.introAudio.enabled && SITE.introAudio.src.startsWith("http");
+const audioHost = audioOn ? new URL(SITE.introAudio.src).hostname : "";
+---
+
+<Layout
+  title={`Privacy | ${SITE.title}`}
+  description="What MonkeyProof collects about you (almost nothing) and why."
+>
+  <Panel class="privacy-panel">
+    <article class="privacy">
+      <header class="privacy__header">
+        <h1 class="page-heading">Privacy</h1>
+        <p class="page-lede">
+          Short version: no cookies, no analytics, no ads, no tracking pixels. The monkeys don't know
+          who you are, and they'd like to keep it that way.
+        </p>
+        <p class="privacy__updated">Last updated: <time datetime={UPDATED.toISOString().slice(0, 10)}>{updatedLabel}</time></p>
+      </header>
+
+      <div class="prose">
+        <h2>Who is responsible</h2>
+        <p>
+          This blog is a personal, non-commercial site run by {SITE.author}, who is the data controller
+          for the little personal data described below. Questions or requests go to
+          <a href={`mailto:${CONTACT}`}>{CONTACT}</a>.
+        </p>
+
+        <h2>What gets collected</h2>
+        <h3>Server logs</h3>
+        <p>
+          Like almost every web server, the one serving this site writes a technical log line for each
+          request: IP address, date and time, the page or file requested, the response status, the
+          referring page, and your browser's user agent. These logs exist to keep the site running and
+          secure (spotting errors, abuse, and attacks). They are not used to profile anyone, not
+          combined with other data, and not shared, except where the law requires it. They are kept
+          only as long as needed for that purpose and then deleted.
+        </p>
+        <p>
+          The legal basis is legitimate interest (Art. 6(1)(f) GDPR): a website can't be operated
+          safely without them.
+        </p>
+
+        <h3>Your preferences, on your device</h3>
+        <p>
+          Your chosen theme, wallpaper, and focus mode are saved in your browser's
+          <code>localStorage</code> (keys <code>mp.theme</code>, <code>mp.wallpaper</code>,
+          <code>mp.focus</code>). They never leave your device and are never sent to a server. You can
+          clear them at any time from your browser settings. When you jump to or from
+          <a href={SITE.daveos.url}>{SITE.daveos.label}</a>, the theme and wallpaper travel along in the
+          link (<code>?theme=&amp;wallpaper=</code>) so both sites look the same. That's all they do.
+        </p>
+
+        <h3>Search</h3>
+        <p>
+          Search runs entirely in your browser against a static index shipped with the site. What you
+          type is not sent anywhere.
+        </p>
+
+        <h2>What doesn't happen</h2>
+        <ul>
+          <li>No cookies, so no cookie banner.</li>
+          <li>No analytics, no ad networks, no tracking or fingerprinting scripts.</li>
+          <li>No third-party fonts, CDNs, or embeds: everything is served from this domain.</li>
+          <li>No comments, accounts, newsletter, or forms. Nothing you could type in gets stored.</li>
+        </ul>
+
+        <h2>Third parties, only when you choose</h2>
+        <p>
+          Share buttons and social links (GitHub, LinkedIn, X, Facebook, WhatsApp) are plain links. Nothing
+          is loaded from those services until you click one. Once you're on their site, their privacy
+          policies apply.
+        </p>
+        {
+          audioOn && (
+            <p>
+              The lofi radio player streams audio from <code>{audioHost}</code>. Your browser only
+              connects to it after you press play, and that provider will then see your IP address like
+              any server you connect to.
+            </p>
+          )
+        }
+        <p>
+          If you write to me by email, I'll use your address and message only to reply, and I won't
+          pass them on to anyone.
+        </p>
+
+        <h2>Your rights</h2>
+        <p>
+          Under the GDPR you can ask for access to, correction of, or deletion of your personal data,
+          object to its processing, or ask to restrict it. Write to
+          <a href={`mailto:${CONTACT}`}>{CONTACT}</a>. You can also complain to your data protection
+          authority. In Italy, that's the
+          <a href="https://www.garanteprivacy.it/" rel="noopener">Garante per la protezione dei dati personali</a>.
+        </p>
+
+        <h2>Changes</h2>
+        <p>
+          If anything here changes (say, if I ever add analytics), this page will say so first and the
+          date at the top will move.
+        </p>
+      </div>
+    </article>
+  </Panel>
+</Layout>
+
+<style>
+  .privacy-panel {
+    max-width: 860px;
+    margin-inline: auto;
+  }
+
+  .privacy {
+    padding: clamp(1.5rem, 5vw, 3.5rem);
+  }
+
+  .privacy__header {
+    padding-bottom: clamp(1.25rem, 3vw, 2rem);
+    margin-bottom: clamp(1.25rem, 3vw, 2rem);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .privacy__updated {
+    margin: 1rem 0 0;
+    font-size: 13px;
+    opacity: 0.7;
+  }
+</style>

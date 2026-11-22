@@ -27,6 +27,8 @@ const year = new Date().getFullYear();
   </div>
   <p class="dock-footer__legal">
     © {year} {SITE.author}. Written by a human, proofread by a monkey.
+    <span aria-hidden="true">·</span>
+    <a href="/privacy/">Privacy</a>
   </p>
 </footer>
 
@@ -89,5 +91,16 @@ const year = new Date().getFullYear();
     font-size: 12.5px;
     opacity: 0.7;
     text-align: center;
+  }
+
+  .dock-footer__legal a {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .dock-footer__legal a:hover,
+  .dock-footer__legal a:focus-visible {
+    opacity: 1;
+    color: var(--accent);
   }
 </style>
