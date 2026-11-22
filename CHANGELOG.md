@@ -1,3 +1,9 @@
+## [1.4.0](https://github.com/davidemaggi/MonkeyProof/compare/v1.3.0...v1.4.0) (2026-11-22)
+
+### Features
+
+* **blog:** add Guilty Until Proven Human post on AI as the default incident suspect ([93829da](https://github.com/davidemaggi/MonkeyProof/commit/93829da81022ea2024cd3c44c0462218503a9691))
+
 ## [1.3.0](https://github.com/davidemaggi/MonkeyProof/compare/v1.2.0...v1.3.0) (2026-11-14)
 
 ### Features
