@@ -139,7 +139,7 @@
   margin-block: 3em;
   border: 0;
   background:
-    url("/favicon.svg") center / 22px no-repeat,
+    url("/banana.svg") center / 22px no-repeat,
     linear-gradient(var(--line), var(--line)) left center / calc(50% - 28px) 1px no-repeat,
     linear-gradient(var(--line), var(--line)) right center / calc(50% - 28px) 1px no-repeat;
 }

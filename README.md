@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="public/favicon.svg" width="72" alt="" />
+<img src="src/assets/logo/monkeyproof-logo.png" width="96" alt="MonkeyProof logo" />
 
 # Monkey🍌Proof
 
