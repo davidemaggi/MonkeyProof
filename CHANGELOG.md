@@ -1,3 +1,9 @@
+## [1.6.1](https://github.com/davidemaggi/MonkeyProof/compare/v1.6.0...v1.6.1) (2026-11-22)
+
+### Bug Fixes
+
+* **contact:** use monkeyproofdev@gmail.com as the blog email ([e0cf9fe](https://github.com/davidemaggi/MonkeyProof/commit/e0cf9fe026dff73a075cec6337dd3f3d52bd7d93))
+
 ## [1.6.0](https://github.com/davidemaggi/MonkeyProof/compare/v1.5.0...v1.6.0) (2026-11-22)
 
 ### Features
