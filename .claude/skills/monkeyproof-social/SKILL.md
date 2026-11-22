@@ -51,7 +51,6 @@ Secrets live in `.env` at the repo root (gitignored):
 MONKEYPROOF_SOCIAL_WEBHOOK_URL=https://n8n.davidemaggi.dev/webhook/monkeyproof-social
 MONKEYPROOF_SOCIAL_WEBHOOK_HEADER=X-MonkeyProof-Key
 MONKEYPROOF_SOCIAL_WEBHOOK_SECRET=<value of the n8n "MonkeyProof Social Webhook" header credential>
-MONKEYPROOF_LINKEDIN_PERSON_ID=<LinkedIn member id, needed only for firstComment>
 ```
 
 Payload (omit a channel to skip it; every field marked `?` is optional):
@@ -62,8 +61,7 @@ Payload (omit a channel to skip it; every field marked `?` is optional):
   "linkedin": {
     "text": "Post body",
     "imageUrl?": "https://raw.githubusercontent.com/davidemaggi/MonkeyProof/main/public/social/<slug>.jpg",
-    "firstComment?": "Full article: https://monkeyproof.dev/posts/<slug>",
-    "personId?": "<MONKEYPROOF_LINKEDIN_PERSON_ID>"
+    "firstComment?": "Full article: https://monkeyproof.dev/posts/<slug>"
   },
   "x": { "text": "Hook line https://monkeyproof.dev/posts/<slug>" }
 }
@@ -77,9 +75,8 @@ jq -n \
   --rawfile li /tmp/mp-social/linkedin.txt \
   --arg img "https://raw.githubusercontent.com/davidemaggi/MonkeyProof/main/public/social/<slug>.jpg" \
   --arg comment "Full article: https://monkeyproof.dev/posts/<slug>" \
-  --arg pid "$MONKEYPROOF_LINKEDIN_PERSON_ID" \
   '{channels:["linkedin"],
-    linkedin:{text:($li|rtrimstr("\n")), imageUrl:$img, firstComment:$comment, personId:$pid}}' > /tmp/mp-social/payload.json
+    linkedin:{text:($li|rtrimstr("\n")), imageUrl:$img, firstComment:$comment}}' > /tmp/mp-social/payload.json
 
 curl -sS -X POST "$MONKEYPROOF_SOCIAL_WEBHOOK_URL" \
   -H "$MONKEYPROOF_SOCIAL_WEBHOOK_HEADER: $MONKEYPROOF_SOCIAL_WEBHOOK_SECRET" \
@@ -93,9 +90,9 @@ If `.env` is missing, the n8n MCP `execute_workflow` (workflow `n5aQBb7qUK6Bgncy
 
 ## The n8n workflow
 
-Nodes: `Social Post Request` (webhook, header auth) → `LinkedIn Requested?` → `LinkedIn Has Image?` → `Download Post Image` → `LinkedIn Post With Image` / `LinkedIn Post Text Only` → `Has First Comment?` → `Add LinkedIn First Comment` (LinkedIn `socialActions/{urn}/comments` API); in parallel `X Requested?` → `Post on X`.
+Nodes: `Social Post Request` (webhook, header auth) → `LinkedIn Requested?` → `Get LinkedIn Member` (`/v2/userinfo`, gives the member id used as author of the post and the comment) → `LinkedIn Has Image?` → `Download Post Image` → `LinkedIn Post With Image` / `LinkedIn Post Text Only` → `Has First Comment?` → `Add LinkedIn First Comment` (LinkedIn `socialActions/{urn}/comments` API); in parallel `X Requested?` → `Post on X`.
 
-Credentials (set once in n8n): `MonkeyProof Social Webhook` (Header Auth), `LinkedIn` (LinkedIn OAuth2, used by both LinkedIn nodes and the first-comment HTTP node), `X` (X OAuth2). The workflow must be **published/active** for the production webhook URL to work.
+Credentials (set once in n8n): `MonkeyProof Social Webhook` (Header Auth), `LinkedIn account` (LinkedIn OAuth2, Organization Support off; used by both LinkedIn nodes and by the `Get LinkedIn Member` and `Add LinkedIn First Comment` HTTP nodes, which must be assigned by hand after any MCP update), `X` (X OAuth2). The workflow must be **published/active** for the production webhook URL to work.
 
 ### Adding a channel
 
@@ -106,6 +103,5 @@ Credentials (set once in n8n): `MonkeyProof Social Webhook` (Header Auth), `Link
 ## Known limits
 
 - LinkedIn access tokens expire (about 60 days); if LinkedIn nodes fail with 401, reconnect the `LinkedIn` credential in n8n.
-- The first comment requires `personId`; without it, skip `firstComment` and put the link in the post text instead (lower reach).
 - X automation costs money (see *Channels*); the `X` credential in n8n is not configured.
 - X images aren't uploaded (the X node's OAuth2 flow has no media upload); the OG card from the URL covers it.
