@@ -30,6 +30,7 @@ Davide talks in Italian; the social copy is in English (like the blog) unless he
 4. **Approval card.** Show Davide, per channel: the exact text, character count, image, first comment. Wait for the OK.
 5. **Publish** (see *Calling the webhook*).
 6. **Hand over the X copy** in a fenced block, ready to paste on x.com.
+   Also remind Davide to **repost the LinkedIn post as the MonkeyProof Page** (Repost → switch identity to the Page). Posting as the Page via API needs the Community Management API (separate app, LinkedIn approval), which Davide chose not to pursue.
 7. **Verify**: check the execution in n8n (MCP `get_execution`, or the Executions tab) and report what posted where, with links if the output has them. If a channel failed, say which and why; don't silently retry.
 
 ## Channels
@@ -90,9 +91,13 @@ If `.env` is missing, the n8n MCP `execute_workflow` (workflow `n5aQBb7qUK6Bgncy
 
 ## The n8n workflow
 
-Nodes: `Social Post Request` (webhook, header auth) → `LinkedIn Requested?` → `Get LinkedIn Member` (`/v2/userinfo`, gives the member id used as author of the post and the comment) → `LinkedIn Has Image?` → `Download Post Image` → `LinkedIn Post With Image` / `LinkedIn Post Text Only` → `Has First Comment?` → `Add LinkedIn First Comment` (LinkedIn `socialActions/{urn}/comments` API); in parallel `X Requested?` → `Post on X`.
+Nodes: `Social Post Request` (webhook, header auth) → `LinkedIn Requested?` → `Get LinkedIn Member` (`/v2/userinfo`, gives the member id) → `Prepare LinkedIn Post` (Code: builds the author URN and escapes the text, see below) → `LinkedIn Has Image?` → `Init LinkedIn Image Upload` → `Download Post Image` → `Upload LinkedIn Image` → `LinkedIn Post With Image` / `LinkedIn Post Text Only` → `Has First Comment?` → `Add LinkedIn First Comment`; in parallel `X Requested?` → `Post on X` (disabled).
 
-Credentials (set once in n8n): `MonkeyProof Social Webhook` (Header Auth), `LinkedIn account` (LinkedIn OAuth2, Organization Support off; used by both LinkedIn nodes and by the `Get LinkedIn Member` and `Add LinkedIn First Comment` HTTP nodes, which must be assigned by hand after any MCP update), `X` (X OAuth2). The workflow must be **published/active** for the production webhook URL to work.
+LinkedIn is called **directly through HTTP Request nodes on the REST API** (`/rest/images`, `/rest/posts`, and the unversioned `/v2/socialActions/{urn}/comments` for the first comment), not through n8n's built-in LinkedIn node: that node hardcodes a `LinkedIn-Version` that LinkedIn has retired (`426 NONEXISTENT_VERSION`, November 2026). The HTTP nodes send `LinkedIn-Version: 202609` and `X-Restli-Protocol-Version: 2.0.0`. LinkedIn keeps each version active for about a year: on a 426, bump the version in the workflow code (`LINKEDIN_VERSION`) and in the headers of every LinkedIn HTTP node. The new post's URN comes back in the `x-restli-id` response header (the post nodes use *Full Response*).
+
+The Posts API reads `commentary` as "little text": the characters `\ | { } @ [ ] ( ) < > # * _ ~` must be escaped, otherwise the post gets cut off at the first one. `Prepare LinkedIn Post` does this and turns `#word` into real hashtags (`{hashtag|\#|word}`), so the webhook payload stays plain text.
+
+Credentials (set once in n8n): `MonkeyProof Social Webhook` (Header Auth), `LinkedIn account` (LinkedIn OAuth2, Organization Support off), `X` (X OAuth2, not configured). **After any MCP `update_workflow`, every LinkedIn HTTP node loses its credential** (Get LinkedIn Member, Init LinkedIn Image Upload, Upload LinkedIn Image, LinkedIn Post With Image, LinkedIn Post Text Only, Add LinkedIn First Comment): Davide has to reassign `LinkedIn account` to each one in the UI and then publish. `Download Post Image` needs no credential. The workflow must be **published/active** for the production webhook URL to work.
 
 ### Adding a channel
 
@@ -102,6 +107,9 @@ Credentials (set once in n8n): `MonkeyProof Social Webhook` (Header Auth), `Link
 
 ## Known limits
 
-- LinkedIn access tokens expire (about 60 days); if LinkedIn nodes fail with 401, reconnect the `LinkedIn` credential in n8n.
+- LinkedIn access tokens expire (about 60 days); if LinkedIn nodes fail with 401, reconnect the `LinkedIn account` credential in n8n.
+- The first comment must use `/v2/socialActions/{urn}/comments` **without** the `LinkedIn-Version` header. The versioned `/rest/socialActions` answers 403 `partnerApiSocialActions.CREATE` because it needs the Community Management API (partner approval). If `/v2` also returns 403, the post is already live: hand the comment to Davide to paste by hand, and never resend the post.
+- LinkedIn API versions expire after about a year: a `426 NONEXISTENT_VERSION` means bump `LinkedIn-Version` (see *The n8n workflow*).
+- The webhook replies before the run finishes and the MCP can't list executions: to verify, ask Davide for the execution ID or a screenshot of the Executions tab, or check the post on his profile.
 - X automation costs money (see *Channels*); the `X` credential in n8n is not configured.
 - X images aren't uploaded (the X node's OAuth2 flow has no media upload); the OG card from the URL covers it.
