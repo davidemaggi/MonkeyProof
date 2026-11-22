@@ -29,7 +29,8 @@ Davide talks in Italian; the social copy is in English (like the blog) unless he
    `https://raw.githubusercontent.com/davidemaggi/MonkeyProof/main/public/social/<slug>.jpg`
 4. **Approval card.** Show Davide, per channel: the exact text, character count, image, first comment. Wait for the OK.
 5. **Publish** (see *Calling the webhook*).
-6. **Verify**: check the execution in n8n (MCP `get_execution`, or the Executions tab) and report what posted where, with links if the output has them. If a channel failed, say which and why; don't silently retry.
+6. **Hand over the X copy** in a fenced block, ready to paste on x.com.
+7. **Verify**: check the execution in n8n (MCP `get_execution`, or the Executions tab) and report what posted where, with links if the output has them. If a channel failed, say which and why; don't silently retry.
 
 ## Channels
 
@@ -39,6 +40,8 @@ Davide talks in Italian; the social copy is in English (like the blog) unless he
 | X | `x` | 280 (a URL counts as 23) | Not uploaded: X renders the post's Open Graph card from the URL | In the text |
 
 X copy: one sharp hook line plus the URL. No threads (the workflow posts a single tweet), 0–1 hashtags.
+
+**X is manual by default.** The X API has no free tier since February 2026 (pay-per-use: about $0.015 per post, $0.20 per post containing a URL, prepaid credits). Davide chose to post on X by hand: write the X copy, include it in the approval card, and hand it over ready to paste. Don't send `x` in `channels` unless Davide explicitly says X credits are loaded and asks to automate it. The X branch stays in the workflow, ready for that day.
 
 ## Calling the webhook
 
@@ -55,7 +58,7 @@ Payload (omit a channel to skip it; every field marked `?` is optional):
 
 ```json file=payload.json
 {
-  "channels": ["linkedin", "x"],
+  "channels": ["linkedin"],
   "linkedin": {
     "text": "Post body",
     "imageUrl?": "https://raw.githubusercontent.com/davidemaggi/MonkeyProof/main/public/social/<slug>.jpg",
@@ -72,13 +75,11 @@ Write the approved texts to temp files and build the JSON with `jq` so quotes an
 set -a; source .env; set +a
 jq -n \
   --rawfile li /tmp/mp-social/linkedin.txt \
-  --rawfile x /tmp/mp-social/x.txt \
   --arg img "https://raw.githubusercontent.com/davidemaggi/MonkeyProof/main/public/social/<slug>.jpg" \
   --arg comment "Full article: https://monkeyproof.dev/posts/<slug>" \
   --arg pid "$MONKEYPROOF_LINKEDIN_PERSON_ID" \
-  '{channels:["linkedin","x"],
-    linkedin:{text:($li|rtrimstr("\n")), imageUrl:$img, firstComment:$comment, personId:$pid},
-    x:{text:($x|rtrimstr("\n"))}}' > /tmp/mp-social/payload.json
+  '{channels:["linkedin"],
+    linkedin:{text:($li|rtrimstr("\n")), imageUrl:$img, firstComment:$comment, personId:$pid}}' > /tmp/mp-social/payload.json
 
 curl -sS -X POST "$MONKEYPROOF_SOCIAL_WEBHOOK_URL" \
   -H "$MONKEYPROOF_SOCIAL_WEBHOOK_HEADER: $MONKEYPROOF_SOCIAL_WEBHOOK_SECRET" \
@@ -86,7 +87,7 @@ curl -sS -X POST "$MONKEYPROOF_SOCIAL_WEBHOOK_URL" \
   --data @/tmp/mp-social/payload.json
 ```
 
-The webhook answers immediately ("Workflow was started"); the result is in the execution, so always do step 6.
+The webhook answers immediately ("Workflow was started"); the result is in the execution, so always do step 7.
 
 If `.env` is missing, the n8n MCP `execute_workflow` (workflow `n5aQBb7qUK6Bgncy`, `type: "webhook"`, method POST, same body, header in `headers`) is the fallback.
 
@@ -106,4 +107,5 @@ Credentials (set once in n8n): `MonkeyProof Social Webhook` (Header Auth), `Link
 
 - LinkedIn access tokens expire (about 60 days); if LinkedIn nodes fail with 401, reconnect the `LinkedIn` credential in n8n.
 - The first comment requires `personId`; without it, skip `firstComment` and put the link in the post text instead (lower reach).
+- X automation costs money (see *Channels*); the `X` credential in n8n is not configured.
 - X images aren't uploaded (the X node's OAuth2 flow has no media upload); the OG card from the URL covers it.
