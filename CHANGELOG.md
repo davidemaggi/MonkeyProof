@@ -1,3 +1,9 @@
+## [1.6.0](https://github.com/davidemaggi/MonkeyProof/compare/v1.5.0...v1.6.0) (2026-11-22)
+
+### Features
+
+* **about:** rewrite the about page with career path, manager role, and personal details ([d680ea0](https://github.com/davidemaggi/MonkeyProof/commit/d680ea021e491ce2f31661a61ae1b9b653cb4c77))
+
 ## [1.5.0](https://github.com/davidemaggi/MonkeyProof/compare/v1.4.0...v1.5.0) (2026-11-22)
 
 ### Features
