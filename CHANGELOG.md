@@ -1,3 +1,10 @@
+## [1.5.0](https://github.com/davidemaggi/MonkeyProof/compare/v1.4.0...v1.5.0) (2026-11-22)
+
+### Features
+
+* **brand:** add the MonkeyProof mascot logo and use it as favicon ([c878f1c](https://github.com/davidemaggi/MonkeyProof/commit/c878f1c67df5b0a9b033f9b7fa66a386a5ea94e6))
+* **privacy:** add privacy page and link it from the footer ([d0f3ed5](https://github.com/davidemaggi/MonkeyProof/commit/d0f3ed57f0063ce70130b4419654355a7b1ffad1))
+
 ## [1.4.0](https://github.com/davidemaggi/MonkeyProof/compare/v1.3.0...v1.4.0) (2026-11-22)
 
 ### Features
