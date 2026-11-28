@@ -1,3 +1,9 @@
+## [1.7.0](https://github.com/davidemaggi/MonkeyProof/compare/v1.6.1...v1.7.0) (2026-11-28)
+
+### Features
+
+* **blog:** add mcpsh post on using any MCP server from the terminal ([fd5ab1d](https://github.com/davidemaggi/MonkeyProof/commit/fd5ab1d790528100c96153f2b2d4636c9ab74294))
+
 ## [1.6.1](https://github.com/davidemaggi/MonkeyProof/compare/v1.6.0...v1.6.1) (2026-11-22)
 
 ### Bug Fixes
